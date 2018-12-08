@@ -28,6 +28,9 @@ public class MainStage {
     @FXML
     private Button btnWorkType;
 
+    @FXML
+    private Button btnReport;
+
 
     @FXML
     private void initialize(){
@@ -41,6 +44,7 @@ public class MainStage {
             btnTeam.setDisable(false);
             btnUsers.setDisable(false);
             btnWorkType.setDisable(false);
+            btnReport.setDisable(false);
         }
     }
 
@@ -124,6 +128,23 @@ public class MainStage {
             root = FXMLLoader.load(getClass().getResource("/fxml/Users.fxml"));
             Stage workTimeStage = new Stage();
             workTimeStage.setTitle("ПОЛЬЗОВАТЕЛИ");
+            workTimeStage.setScene(new Scene(root));
+            workTimeStage.initModality(Modality.APPLICATION_MODAL);
+            workTimeStage.initOwner(btnEmployeeList.getScene().getWindow());
+            workTimeStage.showAndWait();
+        }
+        catch (IOException a){
+            a.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void btnReportClicked(){
+        Parent root;
+        try{
+            root = FXMLLoader.load(getClass().getResource("/fxml/ReportWorkTime.fxml"));
+            Stage workTimeStage = new Stage();
+            workTimeStage.setTitle("ОТЧЁТ");
             workTimeStage.setScene(new Scene(root));
             workTimeStage.initModality(Modality.APPLICATION_MODAL);
             workTimeStage.initOwner(btnEmployeeList.getScene().getWindow());
