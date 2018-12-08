@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="341.0" prefWidth="502.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainStage">
+   <children>
+      <Button fx:id="btnQuot" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="113.0" layoutY="25.0" mnemonicParsing="false" onAction="#btnQuotClicked" prefHeight="65.0" prefWidth="115.0" text="Квоты" textAlignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnTeam" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="275.0" layoutY="25.0" mnemonicParsing="false" onAction="#btnTeamClicked" prefHeight="65.0" prefWidth="134.0" text="Бригады" textAlignment="CENTER">
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </Button>
+      <Button fx:id="btnEmployeeList" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="25.0" layoutY="127.0" mnemonicParsing="false" onAction="#btnEmployeeListClicked" prefHeight="76.0" prefWidth="191.0" text="Список&#10;сотрудников" textAlignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnUsers" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="141.0" layoutY="231.0" mnemonicParsing="false" onAction="#btnUsersClicked" prefHeight="83.0" prefWidth="221.0" text="Список&#10;пользователей" textAlignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnWorkType" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="275.0" layoutY="127.0" mnemonicParsing="false" onAction="#btnWorkTypeClicked" prefHeight="76.0" prefWidth="202.0" text="Список&#10;видов работ" textAlignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
