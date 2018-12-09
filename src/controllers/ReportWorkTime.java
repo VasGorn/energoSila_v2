@@ -3,6 +3,8 @@ package controllers;
 import http.Const;
 import http.HttpHandler;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -96,5 +98,31 @@ public class ReportWorkTime {
                 }
             }
         }).start();
+
+        setItemsToComboBoxMonth();
+
+        cbMonth.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        });
+
     }
+
+    private void setItemsToComboBoxMonth(){
+        cbMonth.getItems().add("Январь");
+        cbMonth.getItems().add("Февраль");
+        cbMonth.getItems().add("Март");
+        cbMonth.getItems().add("Апрель");
+        cbMonth.getItems().add("Май");
+        cbMonth.getItems().add("Июнь");
+        cbMonth.getItems().add("Июль");
+        cbMonth.getItems().add("Август");
+        cbMonth.getItems().add("Сентябрь");
+        cbMonth.getItems().add("Окрябрь");
+        cbMonth.getItems().add("Ноябрь");
+        cbMonth.getItems().add("Декабрь");
+    }
+
 }

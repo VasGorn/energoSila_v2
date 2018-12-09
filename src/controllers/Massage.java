@@ -14,7 +14,7 @@ public class Massage {
 
     static public void iShow(String header, String content){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Подтверждение!");
+        alert.setTitle("Information!");
         alert.setHeaderText(header);
         alert.setContentText(content);
 
