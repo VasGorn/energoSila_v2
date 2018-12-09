@@ -7,8 +7,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import model.Employee;
 import model.Order;
 import model.User;
@@ -37,7 +39,14 @@ public class ReportWorkTime {
     private TextField txtFileName;
 
     @FXML
+    private ProgressIndicator progressIndicator;
+
+    @FXML
+    private VBox vBox;
+
+    @FXML
     private void initialize(){
+        activateProgressIndicator(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,18 +61,8 @@ public class ReportWorkTime {
 
                     if (success == 1) {
                         JSONArray employeesJSON = jsonObj.getJSONArray("employees");
-                        ArrayList<Employee> employeesList = new ArrayList<>();
-                        for (int i = 0; i < employeesJSON.length(); i++) {
-                            JSONObject o = employeesJSON.getJSONObject(i);
 
-                            int userID = o.getInt(Const.EMPLOYEE_ID);
-                            String lastName = o.getString(Const.EMPLOYEE_LASTNAME);
-                            String firstName = o.getString(Const.EMPLOYEE_FIRSTNAME);
-                            String middleName = o.getString(Const.EMPLOYEE_MIDDLENAME);
-
-                            Employee employee = new Employee(lastName,firstName,middleName,userID);
-                            employeesList.add(employee);
-                        }
+                        ArrayList<Employee> employeesList = getArrayListOfEmployee(employeesJSON);
 
                         Platform.runLater(new Runnable() {
                             @Override
@@ -73,28 +72,17 @@ public class ReportWorkTime {
                                 for(Employee e: employeesList)
                                     cbManager.getItems().add(e);
 
-
                                 cbManager.setPromptText("...");
+
+                                activateProgressIndicator(false);
                             }
                         });
 
                     } else {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                Massage.show("Что-то пошло не так",
-                                        "Неизвестная ошибка");
-                            }
-                        });
+                        Massage.showDataNotFound();
                     }
                 } else {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            Massage.show("Что-то пошло не так",
-                                    "Проверьте соединение с сетью");
-                        }
-                    });
+                    Massage.showNetworkError();
                 }
             }
         }).start();
@@ -110,6 +98,7 @@ public class ReportWorkTime {
 
     }
 
+    //--------------------------------------------------------------------------
     private void setItemsToComboBoxMonth(){
         cbMonth.getItems().add("Январь");
         cbMonth.getItems().add("Февраль");
@@ -125,4 +114,65 @@ public class ReportWorkTime {
         cbMonth.getItems().add("Декабрь");
     }
 
+    //--------------------------------------------------------------------------
+    private void activateProgressIndicator(boolean isActive){
+        if(isActive){
+            vBox.setDisable(true);
+            progressIndicator.setVisible(true);
+        }else{
+            vBox.setDisable(false);
+            progressIndicator.setVisible(false);
+        }
+
+    }
+
+    //--------------------------------------------------------------------------
+    private ArrayList<Employee> getArrayListOfEmployee(JSONArray employeeInJSON){
+        ArrayList<Employee> employeesList = new ArrayList<>();
+        for (int i = 0; i < employeeInJSON.length(); i++) {
+            JSONObject o = employeeInJSON.getJSONObject(i);
+
+            int userID = o.getInt(Const.EMPLOYEE_ID);
+            String lastName = o.getString(Const.EMPLOYEE_LASTNAME);
+            String firstName = o.getString(Const.EMPLOYEE_FIRSTNAME);
+            String middleName = o.getString(Const.EMPLOYEE_MIDDLENAME);
+
+            Employee employee = new Employee(lastName,firstName,middleName,userID);
+            employeesList.add(employee);
+        }
+        return employeesList;
+    }
+
+    //--------------------------------------------------------------------------
+    private int getNumMonth(){
+        String sMonth = cbMonth.getValue();
+        if(sMonth.equals("Январь"))
+            return 1;
+        else if(sMonth.equals("Февраль"))
+            return 2;
+        else if(sMonth.equals("Март"))
+            return 3;
+        else if(sMonth.equals("Апрель"))
+            return 4;
+        else if(sMonth.equals("Май"))
+            return 5;
+        else if(sMonth.equals("Июнь"))
+            return 6;
+        else if(sMonth.equals("Июль"))
+            return 7;
+        else if(sMonth.equals("Август"))
+            return 8;
+        else if(sMonth.equals("Сентябрь"))
+            return 9;
+        else if(sMonth.equals("Окрябрь"))
+            return 10;
+        else if(sMonth.equals("Ноябрь"))
+            return 11;
+        else if(sMonth.equals("Декабрь"))
+            return 12;
+        else
+            return 0;
+    }
+
+    //--------------------------------------------------------------------------
 }

@@ -15,9 +15,9 @@
 <?import javafx.scene.text.Text?>
 
 
-<StackPane xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ReportWorkTime">
+<StackPane prefHeight="400.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ReportWorkTime">
    <children>
-      <VBox alignment="CENTER" prefHeight="400.0" prefWidth="550.0">
+      <VBox fx:id="vBox" alignment="CENTER">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="ОТЧЁТ ПО ВРЕМЕНИ РАБОТЫ" textAlignment="CENTER">
                <font>
@@ -119,6 +119,6 @@
             </Button>
          </children>
       </VBox>
-      <ProgressIndicator fx:id="progressIndicator" scaleX="0.5" scaleY="0.5" />
+      <ProgressIndicator fx:id="progressIndicator" prefHeight="500.0" prefWidth="500.0" />
    </children>
 </StackPane>
