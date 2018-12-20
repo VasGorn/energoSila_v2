@@ -38,6 +38,8 @@ public class Const {
     static final String URL_UPDATE_WORKTYPE = Const.URL_SERVER + "/admin/update_work_type.php";
     static final String URL_DELETE_WORKTYPE = Const.URL_SERVER + "/admin/delete_work_type.php";
 
+    static final String URL_GET_ACTIVE_ORDERS_FOR_MANAGER = Const.URL_SERVER + "/admin/get_active_orders_for_manager.php";
+
 
 
     //------------------------------------------------------------------------------------
@@ -86,6 +88,19 @@ public class Const {
     //------------------------------------------------------------------------------------
     // ORDER_HAS_WORKTYPE_TABLE
     public static final String ORDER_HAS_WORKTYPE_HOURS = "hours_on_type";
+
+    //------------------------------------------------------------------------------------
+    // WORK_TIME TABLE
+    public static final String WORK_TIME_TABLE = "work_time";
+    public static final String WORK_TIME_ID = "id";
+    public static final String WORK_TIME_ORDER_ID = "order_order_id";
+    public static final String WORK_TIME_EMPLOYEE_ID = "employee_employee_id";
+    public static final String WORK_TIME_WORK_TYPE_ID = "work_type_type_id";
+    public static final String WORK_TIME_NUM_MONTH = "num_month";
+    public static final String WORK_TIME_NUM_DAY = "num_day";
+    public static final String WORK_TIME_WORK_TIME = "work_time";
+    public static final String WORK_TIME_OVER_TIME = "over_time";
+    public static final String WORK_TIME_APPROVAL = "work_approval";
 
 
 }

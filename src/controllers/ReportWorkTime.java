@@ -13,7 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import model.Employee;
 import model.Order;
-import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -46,10 +45,11 @@ public class ReportWorkTime {
 
     @FXML
     private void initialize(){
-        activateProgressIndicator(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
+                activateProgressIndicator(true);
+
                 // 1 is the manager
                 String jsonStr = HttpHandler.getEmployeesWithPosition("1");
 
@@ -73,8 +73,6 @@ public class ReportWorkTime {
                                     cbManager.getItems().add(e);
 
                                 cbManager.setPromptText("...");
-
-                                activateProgressIndicator(false);
                             }
                         });
 
@@ -84,21 +82,39 @@ public class ReportWorkTime {
                 } else {
                     Massage.showNetworkError();
                 }
+
+                activateProgressIndicator(false);
             }
         }).start();
 
         setItemsToComboBoxMonth();
 
+        cbManager.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setActiveOrders();
+            }
+        });
+
         cbMonth.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                setActiveOrders();
+            }
+        });
 
+        cbOrder.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setOrderInformation();
+                setReportName();
             }
         });
 
     }
 
     //--------------------------------------------------------------------------
+    //-----------------------------PRIVATE FUNCTION-----------------------------
     private void setItemsToComboBoxMonth(){
         cbMonth.getItems().add("Январь");
         cbMonth.getItems().add("Февраль");
@@ -116,14 +132,18 @@ public class ReportWorkTime {
 
     //--------------------------------------------------------------------------
     private void activateProgressIndicator(boolean isActive){
-        if(isActive){
-            vBox.setDisable(true);
-            progressIndicator.setVisible(true);
-        }else{
-            vBox.setDisable(false);
-            progressIndicator.setVisible(false);
-        }
-
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if(isActive){
+                    vBox.setDisable(true);
+                    progressIndicator.setVisible(true);
+                }else{
+                    vBox.setDisable(false);
+                    progressIndicator.setVisible(false);
+                }
+            }
+        });
     }
 
     //--------------------------------------------------------------------------
@@ -145,7 +165,12 @@ public class ReportWorkTime {
 
     //--------------------------------------------------------------------------
     private int getNumMonth(){
+        if(cbMonth.getValue() == null){
+            return 0;
+        }
+
         String sMonth = cbMonth.getValue();
+
         if(sMonth.equals("Январь"))
             return 1;
         else if(sMonth.equals("Февраль"))
@@ -175,4 +200,127 @@ public class ReportWorkTime {
     }
 
     //--------------------------------------------------------------------------
+    private void setActiveOrders(){
+        Employee employee = cbManager.getValue();
+        int numMonth = getNumMonth();
+
+        if(employee != null && numMonth != 0){
+            int managerID = employee.getID();
+            new Thread(new GetActiveOrders(managerID, numMonth)).start();
+        }
+
+    }
+
+    //--------------------------------------------------------------------------
+    private void setOrderInformation(){
+        Order order = cbOrder.getValue();
+
+        if(order != null){
+            String describe = order.getDescription();
+            String address = order.getAddress();
+
+            txtDescribe.setText(describe);
+            txtAddress.setText(address);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    private void setReportName(){
+        txtFileName.clear();
+
+        Order order = cbOrder.getValue();
+        Employee employee = cbManager.getValue();
+
+        if(order != null && employee != null) {
+
+            String orderName = order.getNameOrder();
+            String managerName = employee.getLastName();
+            String monthName = cbMonth.getValue();
+
+            String reportName = "отчёт_" + managerName + "_" + orderName + "_" + monthName;
+
+            txtFileName.setText(reportName);
+        }
+    }
+
+
+    //--------------------------------------------------------------------------
+    //---------------------------PRIVATE CLASSES--------------------------------
+    private class GetActiveOrders implements Runnable{
+        private String managerID;
+        private String numMonth;
+
+        private GetActiveOrders(int managerID, int numMonth){
+            this.managerID = String.valueOf(managerID);
+            this.numMonth = String.valueOf(numMonth);
+        }
+
+        @Override
+        public void run() {
+            activateProgressIndicator(true);
+
+            //String managerID = String.valueOf(User.getId());
+            String jsonStr = HttpHandler.getActiveOrdersForManager(managerID, numMonth);
+
+            System.out.println(jsonStr);
+
+            if(jsonStr != null) {
+                JSONObject jsonObj = new JSONObject(jsonStr);
+                int success = jsonObj.getInt("success");
+
+                if (success == 1) {
+                    JSONArray ordersJSON = jsonObj.getJSONArray("orders");
+                    ArrayList<Order> ordersList = getOrdersFromJson(ordersJSON);
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            Order allOrder = new Order(0,"ВСЁ",
+                                    "*******","*******",
+                                    "*******", 0);
+
+                            cbOrder.getItems().clear();
+
+                            cbOrder.getItems().add(allOrder);
+
+                            for(Order o: ordersList)
+                                cbOrder.getItems().add(o);
+
+                            cbOrder.setPromptText("...");
+                        }
+                    });
+
+                } else {
+                    Massage.showDataNotFound();
+                }
+            } else {
+                Massage.showNetworkError();
+            }
+
+            activateProgressIndicator(false);
+        }
+
+        private ArrayList<Order> getOrdersFromJson(JSONArray ordersJSON){
+            ArrayList<Order> ordersList = new ArrayList<>();
+            for (int i = 0; i < ordersJSON.length(); i++) {
+                JSONObject o = ordersJSON.getJSONObject(i);
+
+                int orderID = o.getInt(Const.ORDER_ID);
+                String nameOrder = o.getString(Const.ORDER_NAME);
+                String adress = o.getString(Const.ORDER_ADRESS);
+                String description = o.getString(Const.ORDER_DERSCRIPTION);
+                int maxHours = o.getInt(Const.ORDER_MAX_HOURS);
+
+                Employee manager = cbManager.getValue();
+
+                Order order = new Order(orderID, nameOrder,adress, description,
+                        manager.getName(), maxHours);
+                ordersList.add(order);
+            }
+            return  ordersList;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    //private
 }

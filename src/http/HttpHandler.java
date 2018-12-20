@@ -484,6 +484,21 @@ public final class HttpHandler {
         return response;
     }
 
+    public static String getActiveOrdersForManager(String managerID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_ACTIVE_ORDERS_FOR_MANAGER;
+        try {
+            String param = "managerID=" + URLEncoder.encode(managerID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
     //---------------------------------------------------------------------------------------
     private static String postRequest(String reqUrl, String param){
         String response = null;
