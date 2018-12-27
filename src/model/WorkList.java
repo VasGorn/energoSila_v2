@@ -62,7 +62,7 @@ public class WorkList {
                 String middlename = jEmployee.getString(Const.EMPLOYEE_MIDDLENAME);
 
                 Employee employee = new Employee(lastname,firstname,middlename,employeeID);
-                ArrayList<double[]> workDataList = new ArrayList<>();
+                ArrayList<int[]> workDataList = new ArrayList<>();
 
                 WorkTypeWithEmployees.EmployeeWork newEmployeeWithWork =
                         newWorkTypeWithEmployees. new EmployeeWork(employee);
@@ -70,7 +70,7 @@ public class WorkList {
                 JSONArray workArray = jEmployee.getJSONArray(WORK);
                 for(int k = 0; k < workArray.length(); ++k){
                     JSONObject jWork = workArray.getJSONObject(k);
-                    double[] workData = new double[4];
+                    int[] workData = new int[4];
 
                     int numDay = jWork.getInt(Const.WORK_TIME_NUM_DAY);
                     int work_time = jWork.getInt(Const.WORK_TIME_WORK_TIME);
@@ -120,17 +120,16 @@ public class WorkList {
     public class WorkTypeWithEmployees{
         private WorkType workType;
         private ArrayList<EmployeeWork> employeeList;
+        private ArrayList<int[]> hoursTypeList;
+        private int sumWorkType;
+        private int sumOverWorkType;
+        private boolean isSumApprove;
+
 
         //----------------------------------------------------------------------
         // CONSTRUCTOR
         public WorkTypeWithEmployees(WorkType workType){
             this.workType = workType;
-            this.employeeList = new ArrayList<>();
-        }
-
-        public WorkTypeWithEmployees(WorkType workType, ArrayList<EmployeeWork> employeeList){
-            this.workType = workType;
-            this.employeeList = employeeList;
         }
 
         //----------------------------------------------------------------------
@@ -143,6 +142,16 @@ public class WorkList {
             return employeeList;
         }
 
+        public ArrayList<int[]> getHoursTypeList() {
+            return hoursTypeList;
+        }
+
+        public int getSumWorkType() { return sumWorkType; }
+
+        public int getSumOverWork() { return sumOverWorkType; }
+
+        public boolean getIsSumApprove() { return isSumApprove; }
+
         //----------------------------------------------------------------------
         // SETTER
         public void setWorkType(WorkType workType) {
@@ -151,24 +160,66 @@ public class WorkList {
 
         public void setEmployeeList(ArrayList<EmployeeWork> employeeList) {
             this.employeeList = employeeList;
+
+            ArrayList<int[]> sumList = new ArrayList<>();
+
+            sumWorkType = 0;
+            sumOverWorkType = 0;
+            isSumApprove = true;
+
+            // sum hours over month
+            for(EmployeeWork e: employeeList){
+                sumWorkType += e.getSumWorkEmployee();
+                sumOverWorkType += e.getSumOverWorkEmployee();
+                if(isSumApprove && !e.isSumAppove()) isSumApprove = false;
+            }
+
+
+            // iterate through month to calculate sum hours on day for work type
+            for(int i = 1; i <= 31; i++){
+                int sumWork = 0;
+                int sumOverWork = 0;
+                int approve = 1;
+                for(EmployeeWork e: employeeList){
+                    ArrayList<int[]> employeeWork = e.getWork();
+                    for(int[] w: employeeWork){
+                        if(i == w[NUM_DAY]){
+                            sumWork += w[WORK_TIME];
+                            sumOverWork += w[OVER_WORK];
+                            if(approve == 1 && w[APPROV] == 0) approve = 0;
+                            break;
+                        }
+                    }
+                }
+
+                if(sumWork > 0 || sumOverWork > 0){
+                    int[] sumHoursOnDay = new int[4];
+                    sumHoursOnDay[NUM_DAY] = i;
+                    sumHoursOnDay[WORK_TIME] = sumWork;
+                    sumHoursOnDay[OVER_WORK] = sumOverWork;
+                    sumHoursOnDay[APPROV] = approve;
+                    sumList.add(sumHoursOnDay);
+                }
+
+            }
+
+            this.hoursTypeList = sumList;
+
         }
 
         //----------------------------------------------------------------------
         // new class for employee with work info
         public class EmployeeWork{
             private Employee employee;
-            private ArrayList<double[]> work;
+            private ArrayList<int[]> work;
+            private int sumWorkEmployee;
+            private int sumOverWorkEmployee;
+            private boolean isSumApprove;
 
             //----------------------------------------------------------------------
             // CONSTRUCTOR
             public EmployeeWork(Employee employee){
                 this.employee = employee;
-                this.work = new ArrayList<>();
-            }
-
-            public EmployeeWork(Employee employee, ArrayList<double[]> work){
-                this.employee = employee;
-                this.work = work;
             }
 
             //----------------------------------------------------------------------
@@ -177,9 +228,15 @@ public class WorkList {
                 return employee;
             }
 
-            public ArrayList<double[]> getWork() {
+            public ArrayList<int[]> getWork() {
                 return work;
             }
+
+            public int getSumWorkEmployee() { return sumWorkEmployee; }
+
+            public int getSumOverWorkEmployee() { return sumOverWorkEmployee; }
+
+            public boolean isSumAppove() { return isSumApprove; }
 
             //----------------------------------------------------------------------
             // SETTER
@@ -188,8 +245,19 @@ public class WorkList {
             }
 
 
-            public void setWork(ArrayList<double[]> work) {
+            public void setWork(ArrayList<int[]> work) {
                 this.work = work;
+
+                sumWorkEmployee = 0;
+                sumOverWorkEmployee = 0;
+                isSumApprove = true;
+
+                for(int[] h_array: work){
+                    sumWorkEmployee += h_array[WORK_TIME];
+                    sumOverWorkEmployee += h_array[OVER_WORK];
+                    if(isSumApprove && h_array[APPROV] == 0) isSumApprove = false;
+                }
+
             }
         }
 

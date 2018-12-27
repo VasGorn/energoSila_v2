@@ -39,14 +39,11 @@ public final class ServerDate {
         return nameMonth;
     }
 
-    public static String getNumberOfYear(){
-        String nameYear;
+    public static int getNumberOfYear(){
 
         int numOfYear = serverCalender.get(Calendar.YEAR);
 
-        nameYear = String.valueOf(numOfYear);
-
-        return nameYear;
+        return numOfYear;
     }
 
     public static int getDayOfMonth(){
