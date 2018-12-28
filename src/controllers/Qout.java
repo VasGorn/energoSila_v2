@@ -294,6 +294,7 @@ public class Qout {
         }
         catch (NumberFormatException e){
             e.printStackTrace();
+            Massage.show("Ошибка преобразованя",e.toString());
         }
 
 
@@ -526,30 +527,23 @@ public class Qout {
                                 olistWorkTypeWithHours = FXCollections.observableArrayList(workTypes);
 
                                 tvWorkTypeWithHours.setItems(olistWorkTypeWithHours);
+
                                 btnAdd.setDisable(false);
                             }
                         });
 
                     } else {
+                        Massage.iShow("Поиск успешен","Статус - новый заказ на часы");
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
-                                Massage.show("Что-то пошло не так",
-                                        "Нет исходных данных");
                                 btnAdd.setDisable(false);
                             }
                         });
                     }
 
-
                 } else {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            Massage.show("Что-то пошло не так",
-                                    "Проверьте соединение с сетью");
-                        }
-                    });
+                    Massage.showNetworkError();
                 }
             }
         }).start();
@@ -662,7 +656,10 @@ public class Qout {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
+
                             olistWorkTypeWithHours.add(newWorkTypeWithHours);
+
+                            tvWorkTypeWithHours.refresh();
                         }
                     });
 
