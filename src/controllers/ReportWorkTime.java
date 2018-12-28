@@ -3,6 +3,7 @@ package controllers;
 import http.Const;
 import http.HttpHandler;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,11 +21,15 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReportWorkTime {
     @FXML
@@ -126,8 +131,19 @@ public class ReportWorkTime {
             @Override
             public void handle(ActionEvent event) {
                 int numMonth = getNumMonth();
-                int orderID = cbOrder.getValue().getId();
-                new Thread(new GetWorkDataToReport(orderID, numMonth)).start();
+                List<Order> orderList;
+
+                Order order = cbOrder.getValue();
+
+                if(order.getId() == 0){
+                    orderList = cbOrder.getItems();
+                    orderList.remove(0);
+                } else {
+                    orderList = new ArrayList<>();
+                    orderList.add(order);
+                }
+
+                new Thread(new GetWorkDataToReport(orderList, numMonth)).start();
             }
         });
 
@@ -342,70 +358,101 @@ public class ReportWorkTime {
     }
 
     private class GetWorkDataToReport implements Runnable{
-        private String orderID;
+        private List<Order> orderList;
         private String numMonth;
 
-        private GetWorkDataToReport(int orderID, int numMonth){
-            this.orderID = String.valueOf(orderID);
+        private GetWorkDataToReport(List<Order> orderList, int numMonth){
             this.numMonth = String.valueOf(numMonth);
+            this.orderList = orderList;
         }
 
         @Override
         public void run() {
             activateProgressIndicator(true);
+            ArrayList<WorkList> workList = new ArrayList<>();
+            boolean flag = true;
 
-            //String managerID = String.valueOf(User.getId());
-            String jsonStr = HttpHandler.getDataToReportWork(orderID, numMonth);
+            for(Order o: orderList) {
+                String orderID = String.valueOf(o.getId());
+                String jsonStr = HttpHandler.getDataToReportWork(orderID, numMonth);
 
-            System.out.println(jsonStr);
+                if (jsonStr != null) {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+                    int success = jsonObj.getInt("success");
 
-            if(jsonStr != null) {
-                JSONObject jsonObj = new JSONObject(jsonStr);
-                int success = jsonObj.getInt("success");
+                    if (success == 1) {
+                        JSONArray workListJSON = jsonObj.getJSONArray("workByType");
 
-                if (success == 1) {
-                    JSONArray workListJSON = jsonObj.getJSONArray("workByType");
+                        WorkList work = new WorkList(o, workListJSON);
+                        workList.add(work);
 
-                    Order order = cbOrder.getValue();
-                    WorkList workList = new WorkList(order, workListJSON);
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            System.out.println(workList.getOrder().toString());
-                            ArrayList<WorkList.WorkTypeWithEmployees> workTypeList;
-
-                            workTypeList = workList.getWorkTypeList();
-
-                            for(WorkList.WorkTypeWithEmployees w: workTypeList){
-                                System.out.println(w.getWorkType().toString());
-                                ArrayList<WorkList.WorkTypeWithEmployees.EmployeeWork> employeeList;
-                                employeeList = w.getEmployeeList();
-                                for(WorkList.WorkTypeWithEmployees.EmployeeWork e: employeeList){
-                                    System.out.println(e.getEmployee().toString());
-                                }
-                            }
-
-                            createExcel(workList);
-
-                        }
-                    });
-
+                    } else {
+                        Massage.showDataNotFound();
+                        flag = false;
+                        break;
+                    }
                 } else {
-                    Massage.showDataNotFound();
+                    Massage.showNetworkError();
+                    flag = false;
+                    break;
                 }
-            } else {
-                Massage.showNetworkError();
+            }
+
+            if(flag) {
+                createExcel(workList);
             }
 
             activateProgressIndicator(false);
         }
 
-        private void createExcel(WorkList workList){
-            Order order = cbOrder.getValue();
+        private void createExcel(ArrayList<WorkList> workList){
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
 
-            // create workbook
-            Workbook workbook = new HSSFWorkbook();
+                    // create workbook
+                    Workbook workbook = new HSSFWorkbook();
+
+                    for(WorkList w: workList){
+                        createSheet(w, workbook);
+                    }
+
+                    // write the output to a file
+                    try {
+                        Path currentPath = Paths.get("");
+                        String absPath = currentPath.toAbsolutePath().toString();
+
+                        absPath = absPath + "/REPORT/";
+
+                        File fileDir = new File(absPath);
+
+                        if( !fileDir.exists()){
+                            fileDir.mkdir();
+                        }
+
+                        String fileName = txtFileName.getText() + ".xls";
+
+                        File file = new File(fileDir, fileName);
+
+                        System.out.println(absPath);
+
+                        FileOutputStream fileOut = new FileOutputStream(file);
+                        workbook.write(fileOut);
+                        fileOut.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Massage.show("Не удалось создать отчет", e.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+
+        private void createSheet(WorkList workList, Workbook workbook){
+            Order order = workList.getOrder();
+
 
             /* CreationHelper helps us create instances of various things like DataFormat,
             Hyperlink, RichTextString etc, in a format (HSSF, XSSF) independent way */
@@ -560,19 +607,6 @@ public class ReportWorkTime {
                     rowNum++;
                 }
             }
-
-
-            // write the output to a file
-            try {
-                FileOutputStream fileOut = new FileOutputStream("example.xls");
-                workbook.write(fileOut);
-                fileOut.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
 
         }
 

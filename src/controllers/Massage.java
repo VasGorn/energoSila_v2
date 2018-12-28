@@ -5,21 +5,35 @@ import javafx.scene.control.Alert;
 
 public class Massage {
     static public void show(String header, String content){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка!");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Ошибка!");
+                alert.setHeaderText(header);
+                alert.setContentText(content);
 
-        alert.showAndWait();
+                alert.showAndWait();
+            }
+        });
+
     }
 
     static public void iShow(String header, String content){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information!");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information!");
+                alert.setHeaderText(header);
+                alert.setContentText(content);
 
-        alert.showAndWait();
+                alert.showAndWait();
+            }
+        });
+
+
+
     }
 
     static public void showNetworkError(){
