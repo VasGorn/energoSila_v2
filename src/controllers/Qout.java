@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Qout {
     @FXML
@@ -153,6 +154,10 @@ public class Qout {
         cbPosition.setOnAction(event -> {
             ArrayList<Employee> listOfEmployee;
 
+            if(olistWorkTypeWithHours != null) {
+                olistWorkTypeWithHours.clear();
+            }
+
             String positionID;
             if(cbPosition.getValue().equals("Инженер")){
                 positionID = "2";
@@ -252,9 +257,10 @@ public class Qout {
         String number = tfHours.getText();
 
         WorkType workType = cbWorkType.getValue();
+        Employee employee = cbWorkers.getValue();
 
-        if(workType == null){
-            Massage.show("", "Выберите вид работ");
+        if(workType == null || employee == null){
+            Massage.show("", "Данные не выбраны");
             return;
         }
 
@@ -265,13 +271,11 @@ public class Qout {
                     return;
                 }
             }
-        }else {
-            olistWorkTypeWithHours = FXCollections.observableArrayList(new ArrayList<WorkTypeWithHours>(20));
         }
 
         try{
             int orderID = cbNameOrder.getValue().getId();
-            int employeeID = cbWorkers.getValue().getID();
+            int employeeID = employee.getID();
             int numMonth = getNumMonth();
             int workTypeID = workType.getId();
             int hours = Integer.parseInt(number);
@@ -657,7 +661,14 @@ public class Qout {
                         @Override
                         public void run() {
 
-                            olistWorkTypeWithHours.add(newWorkTypeWithHours);
+                            if(olistWorkTypeWithHours == null) {
+                                List<WorkTypeWithHours> qouts = new ArrayList<>();
+                                qouts.add(newWorkTypeWithHours);
+                                olistWorkTypeWithHours = FXCollections.observableArrayList(qouts);
+                                tvWorkTypeWithHours.setItems(olistWorkTypeWithHours);
+                            } else{
+                                olistWorkTypeWithHours.add(newWorkTypeWithHours);
+                            }
 
                             tvWorkTypeWithHours.refresh();
                         }

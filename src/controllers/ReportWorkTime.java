@@ -124,6 +124,9 @@ public class ReportWorkTime {
             public void handle(ActionEvent event) {
                 setOrderInformation();
                 setReportName();
+                if(cbOrder.getValue() != null) {
+                    btnCreate.setDisable(false);
+                }
             }
         });
 
@@ -135,9 +138,10 @@ public class ReportWorkTime {
 
                 Order order = cbOrder.getValue();
 
+
+
                 if(order.getId() == 0){
                     orderList = cbOrder.getItems();
-                    orderList.remove(0);
                 } else {
                     orderList = new ArrayList<>();
                     orderList.add(order);
@@ -147,6 +151,7 @@ public class ReportWorkTime {
             }
         });
 
+        btnCreate.setDisable(true);
     }
 
     //--------------------------------------------------------------------------
@@ -239,6 +244,12 @@ public class ReportWorkTime {
     private void setActiveOrders(){
         Employee employee = cbManager.getValue();
         int numMonth = getNumMonth();
+
+        txtAddress.clear();
+        txtDescribe.clear();
+
+        btnCreate.setDisable(true);
+
 
         if(employee != null && numMonth != 0){
             int managerID = employee.getID();
@@ -373,6 +384,8 @@ public class ReportWorkTime {
             boolean flag = true;
 
             for(Order o: orderList) {
+                if(o.getId() == 0) continue;
+
                 String orderID = String.valueOf(o.getId());
                 String jsonStr = HttpHandler.getDataToReportWork(orderID, numMonth);
 
