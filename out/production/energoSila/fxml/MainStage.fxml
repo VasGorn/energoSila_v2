@@ -5,9 +5,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="341.0" prefWidth="502.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainStage">
+<AnchorPane prefHeight="437.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainStage">
    <children>
-      <Button fx:id="btnQuot" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="113.0" layoutY="25.0" mnemonicParsing="false" onAction="#btnQuotClicked" prefHeight="65.0" prefWidth="115.0" text="Квоты" textAlignment="CENTER">
+      <Button fx:id="btnQuot" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="25.0" layoutY="31.0" mnemonicParsing="false" onAction="#btnQuotClicked" prefHeight="65.0" prefWidth="115.0" text="Квоты" textAlignment="CENTER">
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
@@ -15,7 +15,7 @@
             <Font name="SansSerif Bold" size="21.0" />
          </font>
       </Button>
-      <Button fx:id="btnTeam" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="275.0" layoutY="25.0" mnemonicParsing="false" onAction="#btnTeamClicked" prefHeight="65.0" prefWidth="134.0" text="Бригады" textAlignment="CENTER">
+      <Button fx:id="btnTeam" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="343.0" layoutY="31.0" mnemonicParsing="false" onAction="#btnTeamClicked" prefHeight="65.0" prefWidth="134.0" text="Бригады" textAlignment="CENTER">
          <font>
             <Font name="SansSerif Bold" size="21.0" />
          </font>
@@ -47,7 +47,23 @@
             <Font name="SansSerif Bold" size="21.0" />
          </font>
       </Button>
-      <Button fx:id="btnReport" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="264.0" layoutY="230.0" mnemonicParsing="false" onAction="#btnReportClicked" prefHeight="85.0" prefWidth="224.0" text="Отчет по&#10;времени работы" textAlignment="CENTER">
+      <Button fx:id="btnReport" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="140.0" layoutY="332.0" mnemonicParsing="false" onAction="#btnReportClicked" prefHeight="85.0" prefWidth="224.0" text="Отчет по&#10;времени работы" textAlignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+      </Button>
+      <Button fx:id="btnMoney" alignment="CENTER" disable="true" graphicTextGap="5.0" layoutX="163.0" layoutY="26.0" mnemonicParsing="false" onAction="#btnMoneyClicked" prefHeight="76.0" prefWidth="160.0" text="Денежные&#10;средства" textAlignment="CENTER">
+         <font>
+            <Font name="SansSerif Bold" size="21.0" />
+         </font>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </Button>
+      <Button fx:id="btnListMoney" alignment="CENTER" contentDisplay="CENTER" disable="true" graphicTextGap="5.0" layoutX="270.0" layoutY="230.0" mnemonicParsing="false" onAction="#btnListMoneyClicked" prefHeight="85.0" prefWidth="213.0" text="Список видов&#10;денеж. средств" textAlignment="CENTER">
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
