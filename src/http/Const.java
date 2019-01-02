@@ -42,6 +42,10 @@ public class Const {
 
     static final String URL_GET_DATA_TO_REPORT_WORK = Const.URL_SERVER + "/admin/get_work_to_report.php";
 
+    static final String URL_ALL_MONEY_TYPE = URL_SERVER + "/admin/get_all_money_type.php";
+    static final String URL_INSERT_MONEY_TYPE = URL_SERVER + "/admin/insert_money_type.php";
+    static final String URL_DELETE_MONEY_TYPE = Const.URL_SERVER + "/admin/delete_money_type.php";
+    static final String URL_UPDATE_MONEY_TYPE = Const.URL_SERVER + "/admin/update_money_type.php";
 
 
     //------------------------------------------------------------------------------------
@@ -104,5 +108,9 @@ public class Const {
     public static final String WORK_TIME_OVER_TIME = "over_time";
     public static final String WORK_TIME_APPROVAL = "work_approval";
 
-
+    //------------------------------------------------------------------------------------
+    // WORK_TYPE_TABLE
+    public static final String MONEY_TYPE_TABLE = "money_type";
+    public static final String MONEY_TYPE_ID = "id";
+    public static final String MONEY_TYPE_NAME = "name_money";
 }

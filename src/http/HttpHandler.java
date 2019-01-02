@@ -514,6 +514,65 @@ public final class HttpHandler {
         return response;
     }
 
+    public static String getAllMoneyType(){
+        String response = null;
+        String reqUrl = Const.URL_ALL_MONEY_TYPE;
+        try {
+            String param = "admin=" + URLEncoder.encode("1","UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String insertMoneyType(String nameMoneyType){
+        String response = null;
+        String reqUrl = Const.URL_INSERT_MONEY_TYPE;
+        try {
+            String param = "nameMoneyType=" + URLEncoder.encode(nameMoneyType,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String deleteMoneyType(String moneyTypeID){
+        String response = null;
+        String reqUrl = Const.URL_DELETE_MONEY_TYPE;
+        try {
+            String param = "moneyTypeID=" + URLEncoder.encode(moneyTypeID,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public static String updateMoneyType(String moneyTypeID, String nameMoneyType){
+        String response = null;
+        String reqUrl = Const.URL_UPDATE_MONEY_TYPE;
+        try {
+            String param = "moneyTypeID=" + URLEncoder.encode(moneyTypeID,"UTF-8") +
+                    "&nameMoneyType=" + URLEncoder.encode(nameMoneyType,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
     //---------------------------------------------------------------------------------------
     private static String postRequest(String reqUrl, String param){
         String response = null;
