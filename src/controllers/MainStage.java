@@ -164,6 +164,19 @@ public class MainStage {
 
     @FXML
     public void btnMoneyClicked(){
+        Parent root;
+        try{
+            root = FXMLLoader.load(getClass().getResource("/fxml/MoneyQuot.fxml"));
+            Stage workTimeStage = new Stage();
+            workTimeStage.setTitle("Квоты денежных средств");
+            workTimeStage.setScene(new Scene(root));
+            workTimeStage.initModality(Modality.APPLICATION_MODAL);
+            workTimeStage.initOwner(btnEmployeeList.getScene().getWindow());
+            workTimeStage.showAndWait();
+        }
+        catch (IOException a){
+            a.printStackTrace();
+        }
 
     }
 

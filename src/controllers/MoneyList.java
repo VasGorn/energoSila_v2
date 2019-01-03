@@ -88,7 +88,6 @@ public class MoneyList {
         }
     }
 
-
     // =========================================================================
     // function
     private void activateProgressIndicator(boolean isActive){
@@ -105,9 +104,6 @@ public class MoneyList {
             }
         });
     }
-
-
-
 
 
     // =========================================================================
