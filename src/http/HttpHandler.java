@@ -573,6 +573,113 @@ public final class HttpHandler {
         return response;
     }
 
+    public static String getOrdersWithQuots(String managerID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_ORDERS_WITH_QOUTS;
+        try {
+            String param = "managerID=" + URLEncoder.encode(managerID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+
+    public static String getEmployeesOnQout(String positionID, String orderID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_EMPLOYEE_ON_QOUT;
+        try {
+            String param = "positionID=" + URLEncoder.encode(positionID,"UTF-8") +
+                    "&orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String getMoneyQout(String orderID, String employeeID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_MONEY_QOUT;
+        try {
+            String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&employeeID=" + URLEncoder.encode(employeeID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String insertMoneyQout(String orderID, String employeeID, String numMonth, String sumMoney){
+        String response = null;
+        String reqUrl = Const.URL_INSERT_MONEY_QOUT;
+        try {
+            String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&employeeID=" + URLEncoder.encode(employeeID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8") +
+                    "&sumMoney=" + URLEncoder.encode(sumMoney,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+
+    public static String updateMoneyQout(String orderID, String employeeID, String numMonth, String sumMoney){
+        String response = null;
+        String reqUrl = Const.URL_UPDATE_MONEY_QOUT;
+        try {
+            String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&employeeID=" + URLEncoder.encode(employeeID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8") +
+                    "&sumMoney=" + URLEncoder.encode(sumMoney,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String deleteMoneyQout(String orderID, String employeeID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_DELETE_MONEY_QOUT;
+        try {
+            String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&employeeID=" + URLEncoder.encode(employeeID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+
+
     //---------------------------------------------------------------------------------------
     private static String postRequest(String reqUrl, String param){
         String response = null;

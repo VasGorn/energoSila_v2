@@ -17,7 +17,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <StackPane xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MoneyQout">
    <children>
       <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="489.0" prefWidth="580.0">
@@ -37,7 +36,7 @@
                               <Font size="17.0" />
                            </font>
                         </Label>
-                        <ComboBox fx:id="cbNameOrder" prefHeight="30.0" prefWidth="177.0" promptText="выберете заказ">
+                        <ComboBox fx:id="cbNameOrder" disable="true" prefHeight="30.0" prefWidth="177.0" promptText="выберете заказ">
                            <HBox.margin>
                               <Insets right="40.0" />
                            </HBox.margin>
@@ -97,7 +96,7 @@
                                     <Font size="16.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="taDescription" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+                              <TextArea fx:id="taDescription" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="1">
                                  <GridPane.margin>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </GridPane.margin>
@@ -105,7 +104,7 @@
                                     <Font size="16.0" />
                                  </font>
                               </TextArea>
-                              <TextArea fx:id="taAddress" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                              <TextArea fx:id="taAddress" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </GridPane.margin>
@@ -136,7 +135,7 @@
                                     <Font size="16.0" />
                                  </font>
                               </Label>
-                              <ComboBox fx:id="cbPosition" prefHeight="26.0" prefWidth="207.0" promptText="выберите должность" GridPane.columnIndex="1">
+                              <ComboBox fx:id="cbPosition" disable="true" prefHeight="26.0" prefWidth="207.0" promptText="выберите должность" GridPane.columnIndex="1">
                                  <GridPane.margin>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </GridPane.margin>
@@ -156,7 +155,7 @@
                                     <Font size="16.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="tfHours" alignment="TOP_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                              <TextField fx:id="tfSum" alignment="TOP_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
@@ -168,17 +167,17 @@
                         </GridPane>
                         <VBox alignment="CENTER" prefHeight="90.0" prefWidth="124.0" spacing="30.0">
                            <children>
-                              <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#btnAddClicked" text="Записать">
+                              <Button fx:id="btnAdd" disable="true" mnemonicParsing="false" onAction="#btnAddClicked" text="Записать">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="btnEdit" mnemonicParsing="false" onAction="#btnEditClicked" text="Изменить">
+                              <Button fx:id="btnEdit" disable="true" mnemonicParsing="false" onAction="#btnEditClicked" text="Изменить">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#btnDeleteClicked" text="Удалить">
+                              <Button fx:id="btnDelete" disable="true" mnemonicParsing="false" onAction="#btnDeleteClicked" text="Удалить">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
@@ -203,10 +202,13 @@
                               <Font size="16.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="tfHours1" alignment="TOP_LEFT">
+                        <TextField fx:id="tfCurrentSum" alignment="TOP_LEFT" editable="false">
                            <font>
                               <Font size="16.0" />
                            </font>
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
                         </TextField>
                      </children>
                   </HBox>

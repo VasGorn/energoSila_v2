@@ -47,6 +47,12 @@ public class Const {
     static final String URL_DELETE_MONEY_TYPE = Const.URL_SERVER + "/admin/delete_money_type.php";
     static final String URL_UPDATE_MONEY_TYPE = Const.URL_SERVER + "/admin/update_money_type.php";
 
+    static final String URL_GET_ORDERS_WITH_QOUTS = Const.URL_SERVER + "/manager/get_orders_with_qouts.php";
+    static final String URL_GET_EMPLOYEE_ON_QOUT = Const.URL_SERVER + "/manager/get_employees_on_qout.php";
+    static final String URL_GET_MONEY_QOUT = Const.URL_SERVER + "/manager/get_money_qout.php";
+    static final String URL_INSERT_MONEY_QOUT = Const.URL_SERVER + "/manager/insert_money_sum.php";
+    static final String URL_UPDATE_MONEY_QOUT = Const.URL_SERVER + "/manager/update_money_sum.php";
+    static final String URL_DELETE_MONEY_QOUT = Const.URL_SERVER + "/manager/delete_money_sum.php";
 
     //------------------------------------------------------------------------------------
     // EMPLOYEE_TABLE
@@ -113,4 +119,11 @@ public class Const {
     public static final String MONEY_TYPE_TABLE = "money_type";
     public static final String MONEY_TYPE_ID = "id";
     public static final String MONEY_TYPE_NAME = "name_money";
+
+    //------------------------------------------------------------------------------------
+    // WORK_TYPE_TABLE
+    public static final String MONEY_QOUT_TABLE = "money_on_order";
+    public static final String MONEY_QOUT_ID = "id";
+    public static final String MONEY_QOUT_HOUR_PER_MONTH_ID = "hours_per_month_id";
+    public static final String MONEY_QOUT_SUM = "sum_money";
 }
