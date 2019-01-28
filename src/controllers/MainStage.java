@@ -38,6 +38,9 @@ public class MainStage {
     private Button btnListMoney;
 
     @FXML
+    private Button btnReportMoney;
+
+    @FXML
     private void initialize(){
 
         if(User.isManager()){
@@ -52,6 +55,7 @@ public class MainStage {
             btnWorkType.setDisable(false);
             btnReport.setDisable(false);
             btnListMoney.setDisable(false);
+            btnReportMoney.setDisable(false);
         }
     }
 
@@ -187,6 +191,23 @@ public class MainStage {
             root = FXMLLoader.load(getClass().getResource("/fxml/MoneyList.fxml"));
             Stage workTimeStage = new Stage();
             workTimeStage.setTitle("Список видов денежных средств");
+            workTimeStage.setScene(new Scene(root));
+            workTimeStage.initModality(Modality.APPLICATION_MODAL);
+            workTimeStage.initOwner(btnEmployeeList.getScene().getWindow());
+            workTimeStage.showAndWait();
+        }
+        catch (IOException a){
+            a.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void btnReportMoneyClicked(){
+        Parent root;
+        try{
+            root = FXMLLoader.load(getClass().getResource("/fxml/ReportMoney.fxml"));
+            Stage workTimeStage = new Stage();
+            workTimeStage.setTitle("Отчет по денежным средствам");
             workTimeStage.setScene(new Scene(root));
             workTimeStage.initModality(Modality.APPLICATION_MODAL);
             workTimeStage.initOwner(btnEmployeeList.getScene().getWindow());

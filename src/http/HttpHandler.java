@@ -499,9 +499,39 @@ public final class HttpHandler {
         return response;
     }
 
+    public static String getMoneyOrdersForManager(String managerID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_MONEY_ORDERS_FOR_MANAGER;
+        try {
+            String param = "managerID=" + URLEncoder.encode(managerID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
     public static String getDataToReportWork(String orderID, String numMonth){
         String response = null;
         String reqUrl = Const.URL_GET_DATA_TO_REPORT_WORK;
+        try {
+            String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public static String getDataToReportMoney(String orderID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_DATA_TO_REPORT_MONEY;
         try {
             String param = "orderID=" + URLEncoder.encode(orderID,"UTF-8") +
                     "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");

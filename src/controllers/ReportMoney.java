@@ -3,18 +3,16 @@ package controllers;
 import http.Const;
 import http.HttpHandler;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import model.Employee;
+import model.MoneyList;
 import model.Order;
 import model.ServerDate;
-import model.WorkList;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -31,7 +29,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReportWorkTime {
+public class ReportMoney {
     @FXML
     private ComboBox<Employee> cbManager;
 
@@ -61,6 +59,60 @@ public class ReportWorkTime {
 
     @FXML
     private void initialize(){
+
+        setUpMenegers();
+
+        setItemsToComboBoxMonth();
+
+        cbManager.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setActiveOrders();
+            }
+        });
+
+        cbMonth.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setActiveOrders();
+            }
+        });
+
+        cbOrder.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setOrderInformation();
+                setReportName();
+                if(cbOrder.getValue() != null) {
+                    btnCreate.setDisable(false);
+                }
+            }
+        });
+
+        btnCreate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                int numMonth = getNumMonth();
+                List<Order> orderList;
+
+                Order order = cbOrder.getValue();
+
+                if(order.getId() == 0){
+                    orderList = cbOrder.getItems();
+                } else {
+                    orderList = new ArrayList<>();
+                    orderList.add(order);
+                }
+
+                new Thread(new GetMoneyDataToReport(orderList, numMonth)).start();
+            }
+        });
+
+        btnCreate.setDisable(true);
+
+    }
+
+    private void setUpMenegers(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -102,56 +154,6 @@ public class ReportWorkTime {
                 activateProgressIndicator(false);
             }
         }).start();
-
-        setItemsToComboBoxMonth();
-
-        cbManager.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                setActiveOrders();
-            }
-        });
-
-        cbMonth.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                setActiveOrders();
-            }
-        });
-
-        cbOrder.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                setOrderInformation();
-                setReportName();
-                if(cbOrder.getValue() != null) {
-                    btnCreate.setDisable(false);
-                }
-            }
-        });
-
-        btnCreate.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                int numMonth = getNumMonth();
-                List<Order> orderList;
-
-                Order order = cbOrder.getValue();
-
-
-
-                if(order.getId() == 0){
-                    orderList = cbOrder.getItems();
-                } else {
-                    orderList = new ArrayList<>();
-                    orderList.add(order);
-                }
-
-                new Thread(new GetWorkDataToReport(orderList, numMonth)).start();
-            }
-        });
-
-        btnCreate.setDisable(true);
     }
 
     //--------------------------------------------------------------------------
@@ -172,36 +174,21 @@ public class ReportWorkTime {
     }
 
     //--------------------------------------------------------------------------
-    private void activateProgressIndicator(boolean isActive){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if(isActive){
-                    vBox.setDisable(true);
-                    progressIndicator.setVisible(true);
-                }else{
-                    vBox.setDisable(false);
-                    progressIndicator.setVisible(false);
-                }
-            }
-        });
-    }
+    private void setActiveOrders(){
+        Employee employee = cbManager.getValue();
+        int numMonth = getNumMonth();
 
-    //--------------------------------------------------------------------------
-    private ArrayList<Employee> getArrayListOfEmployee(JSONArray employeeInJSON){
-        ArrayList<Employee> employeesList = new ArrayList<>();
-        for (int i = 0; i < employeeInJSON.length(); i++) {
-            JSONObject o = employeeInJSON.getJSONObject(i);
+        txtAddress.clear();
+        txtDescribe.clear();
 
-            int userID = o.getInt(Const.EMPLOYEE_ID);
-            String lastName = o.getString(Const.EMPLOYEE_LASTNAME);
-            String firstName = o.getString(Const.EMPLOYEE_FIRSTNAME);
-            String middleName = o.getString(Const.EMPLOYEE_MIDDLENAME);
+        btnCreate.setDisable(true);
 
-            Employee employee = new Employee(lastName,firstName,middleName,userID);
-            employeesList.add(employee);
+
+        if(employee != null && numMonth != 0){
+            int managerID = employee.getID();
+            new Thread(new GetMoneyOrders(managerID, numMonth)).start();
         }
-        return employeesList;
+
     }
 
     //--------------------------------------------------------------------------
@@ -241,21 +228,36 @@ public class ReportWorkTime {
     }
 
     //--------------------------------------------------------------------------
-    private void setActiveOrders(){
-        Employee employee = cbManager.getValue();
-        int numMonth = getNumMonth();
+    private void activateProgressIndicator(boolean isActive){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if(isActive){
+                    vBox.setDisable(true);
+                    progressIndicator.setVisible(true);
+                }else{
+                    vBox.setDisable(false);
+                    progressIndicator.setVisible(false);
+                }
+            }
+        });
+    }
 
-        txtAddress.clear();
-        txtDescribe.clear();
+    //--------------------------------------------------------------------------
+    private ArrayList<Employee> getArrayListOfEmployee(JSONArray employeeInJSON){
+        ArrayList<Employee> employeesList = new ArrayList<>();
+        for (int i = 0; i < employeeInJSON.length(); i++) {
+            JSONObject o = employeeInJSON.getJSONObject(i);
 
-        btnCreate.setDisable(true);
+            int userID = o.getInt(Const.EMPLOYEE_ID);
+            String lastName = o.getString(Const.EMPLOYEE_LASTNAME);
+            String firstName = o.getString(Const.EMPLOYEE_FIRSTNAME);
+            String middleName = o.getString(Const.EMPLOYEE_MIDDLENAME);
 
-
-        if(employee != null && numMonth != 0){
-            int managerID = employee.getID();
-            new Thread(new GetActiveOrders(managerID, numMonth)).start();
+            Employee employee = new Employee(lastName,firstName,middleName,userID);
+            employeesList.add(employee);
         }
-
+        return employeesList;
     }
 
     //--------------------------------------------------------------------------
@@ -284,20 +286,19 @@ public class ReportWorkTime {
             String managerName = employee.getLastName();
             String monthName = cbMonth.getValue();
 
-            String reportName = "отчёт_" + managerName + "_" + orderName + "_" + monthName;
+            String reportName = "отчёт_денеж.средства_" + managerName + "_" + orderName + "_" + monthName;
 
             txtFileName.setText(reportName);
         }
     }
 
-
     //--------------------------------------------------------------------------
     //---------------------------PRIVATE CLASSES--------------------------------
-    private class GetActiveOrders implements Runnable{
+    private class GetMoneyOrders implements Runnable{
         private String managerID;
         private String numMonth;
 
-        private GetActiveOrders(int managerID, int numMonth){
+        private GetMoneyOrders(int managerID, int numMonth){
             this.managerID = String.valueOf(managerID);
             this.numMonth = String.valueOf(numMonth);
         }
@@ -307,7 +308,7 @@ public class ReportWorkTime {
             activateProgressIndicator(true);
 
             //String managerID = String.valueOf(User.getId());
-            String jsonStr = HttpHandler.getActiveOrdersForManager(managerID, numMonth);
+            String jsonStr = HttpHandler.getMoneyOrdersForManager(managerID, numMonth);
 
             System.out.println(jsonStr);
 
@@ -368,11 +369,11 @@ public class ReportWorkTime {
         }
     }
 
-    private class GetWorkDataToReport implements Runnable{
+    private class GetMoneyDataToReport implements Runnable {
         private List<Order> orderList;
         private String numMonth;
 
-        private GetWorkDataToReport(List<Order> orderList, int numMonth){
+        private GetMoneyDataToReport(List<Order> orderList, int numMonth) {
             this.numMonth = String.valueOf(numMonth);
             this.orderList = orderList;
         }
@@ -380,24 +381,24 @@ public class ReportWorkTime {
         @Override
         public void run() {
             activateProgressIndicator(true);
-            ArrayList<WorkList> workList = new ArrayList<>();
+            List<MoneyList> moneyList = new ArrayList<>();
             boolean flag = true;
 
-            for(Order o: orderList) {
-                if(o.getId() == 0) continue;
+            for (Order o : orderList) {
+                if (o.getId() == 0) continue;
 
                 String orderID = String.valueOf(o.getId());
-                String jsonStr = HttpHandler.getDataToReportWork(orderID, numMonth);
+                String jsonStr = HttpHandler.getDataToReportMoney(orderID, numMonth);
 
                 if (jsonStr != null) {
                     JSONObject jsonObj = new JSONObject(jsonStr);
                     int success = jsonObj.getInt("success");
 
                     if (success == 1) {
-                        JSONArray workListJSON = jsonObj.getJSONArray("workByType");
+                        JSONArray moneyListJSON = jsonObj.getJSONArray("moneyReport");
 
-                        WorkList work = new WorkList(o, workListJSON);
-                        workList.add(work);
+                        MoneyList work = new MoneyList(o, moneyListJSON);
+                        moneyList.add(work);
 
                     } else {
                         Massage.showDataNotFound();
@@ -411,14 +412,42 @@ public class ReportWorkTime {
                 }
             }
 
-            if(flag) {
-                createExcel(workList);
+            if (flag) {
+                // test without excel
+                for (MoneyList m: moneyList) {
+                    System.out.println("order: " + m.getOrder().toString() +
+                            "; all money: " + m.getSumMoneyForAllEmployee());
+                    List<MoneyList.EmployeeWithMoneyType> e = m.getEmployeeList();
+
+                    for(MoneyList.EmployeeWithMoneyType w: e){
+                        System.out.println(w.getEmployee().toString() + "; money record: " +
+                                w.getSumRecordEmployee() + "; money on order: " +
+                                w.getSumOnEmployeeByOrder());
+                        List<MoneyList.EmployeeWithMoneyType.MoneyTypeData> d = w.getMoneyTypeDataList();
+
+                        for(MoneyList.EmployeeWithMoneyType.MoneyTypeData t: d){
+                            System.out.println(t.getMoneyType().toString());
+                            List<int[]> a = t.getData();
+
+                            for(int[] b: a){
+                                System.out.println("day: " + b[0] + "; sum: " + b[1] +
+                                        "; approve: " + b[2]);
+                            }
+                        }
+
+                    }
+
+                }
+
+                createExcel(moneyList);
             }
 
+
             activateProgressIndicator(false);
+
         }
 
-        private void createExcel(ArrayList<WorkList> workList){
+        private void createExcel(List<MoneyList> moneyList) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -426,7 +455,7 @@ public class ReportWorkTime {
                     // create workbook
                     Workbook workbook = new HSSFWorkbook();
 
-                    for(WorkList w: workList){
+                    for (MoneyList w : moneyList) {
                         createSheet(w, workbook);
                     }
 
@@ -439,7 +468,7 @@ public class ReportWorkTime {
 
                         File fileDir = new File(absPath);
 
-                        if( !fileDir.exists()){
+                        if (!fileDir.exists()) {
                             fileDir.mkdir();
                         }
 
@@ -463,9 +492,8 @@ public class ReportWorkTime {
             });
         }
 
-        private void createSheet(WorkList workList, Workbook workbook){
-            Order order = workList.getOrder();
-
+        private void createSheet(MoneyList moneyList, Workbook workbook) {
+            Order order = moneyList.getOrder();
 
             /* CreationHelper helps us create instances of various things like DataFormat,
             Hyperlink, RichTextString etc, in a format (HSSF, XSSF) independent way */
@@ -478,7 +506,7 @@ public class ReportWorkTime {
             Font headerFontGreen = workbook.createFont();
             headerFontGreen.setBold(true);
             headerFontGreen.setFontHeightInPoints((short) 12);
-            headerFontGreen.setColor(IndexedColors.GREEN.getIndex());
+            headerFontGreen.setColor(IndexedColors.BLUE.getIndex());
 
             // create a Black Font for styling header cells
             Font headerFontBlack = workbook.createFont();
@@ -492,7 +520,7 @@ public class ReportWorkTime {
 
             //-----------------------------------------------------------------
             // Style for center alignment
-            CellStyle centerCellStyle =  workbook.createCellStyle();
+            CellStyle centerCellStyle = workbook.createCellStyle();
             centerCellStyle.setAlignment(HorizontalAlignment.CENTER);
             centerCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             setAllBorder(centerCellStyle, BorderStyle.THIN);
@@ -500,14 +528,14 @@ public class ReportWorkTime {
 
             //-----------------------------------------------------------------
             // Style for center alignment, but usual text
-            CellStyle uCenterCellStyle =  workbook.createCellStyle();
+            CellStyle uCenterCellStyle = workbook.createCellStyle();
             uCenterCellStyle.setAlignment(HorizontalAlignment.CENTER);
             uCenterCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             setAllBorder(uCenterCellStyle, BorderStyle.THIN);
 
             //-----------------------------------------------------------------
             // Style for left alignment and bold text
-            CellStyle boldText =  workbook.createCellStyle();
+            CellStyle boldText = workbook.createCellStyle();
             boldText.setAlignment(HorizontalAlignment.LEFT);
             boldText.setVerticalAlignment(VerticalAlignment.CENTER);
             boldText.setWrapText(true);
@@ -517,7 +545,7 @@ public class ReportWorkTime {
             sheet.setColumnWidth(0, 10000);
             //-----------------------------------------------------------------
             // ORDER INFORMATION
-            createOrderInformation(sheet, order, headerCellStyle);
+            createOrderInformation(sheet, order, moneyList, headerCellStyle);
 
             //-----------------------------------------------------------------
             // TABLE HEADER
@@ -528,91 +556,90 @@ public class ReportWorkTime {
             CellStyle cellColorGreen = workbook.createCellStyle();
             cellColorGreen.setAlignment(HorizontalAlignment.CENTER);
             cellColorGreen.setVerticalAlignment(VerticalAlignment.CENTER);
-            cellColorGreen.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
+            cellColorGreen.setFillForegroundColor(IndexedColors.TURQUOISE.getIndex());
             cellColorGreen.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             setAllBorder(cellColorGreen, BorderStyle.THIN);
 
             CellStyle cellColorGreenBold = workbook.createCellStyle();
             cellColorGreenBold.setAlignment(HorizontalAlignment.CENTER);
             cellColorGreenBold.setVerticalAlignment(VerticalAlignment.CENTER);
-            cellColorGreenBold.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
+            cellColorGreenBold.setFillForegroundColor(IndexedColors.TURQUOISE.getIndex());
             cellColorGreenBold.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             cellColorGreenBold.setFont(headerFontBlack);
             setAllBorder(cellColorGreenBold, BorderStyle.THIN);
 
-            ArrayList<WorkList.WorkTypeWithEmployees> workTypeList;
+            List<MoneyList.EmployeeWithMoneyType> employeeList;
 
-            workTypeList = workList.getWorkTypeList();
+            employeeList = moneyList.getEmployeeList();
 
-            // iterate through work type list
-            int rowNum = 7;
-            for(WorkList.WorkTypeWithEmployees w: workTypeList){
-                Row rowWorkType = sheet.createRow(rowNum);
+            // iterate through employee list
+            int rowNum = 10;
+            for(MoneyList.EmployeeWithMoneyType e: employeeList){
+                Row rowEmployee = sheet.createRow(rowNum);
 
-                // work type name
-                createCell(w.getWorkType().toString(),rowWorkType, 0, boldText);
+                // employee name
+                createCell(e.getEmployee().toString(),rowEmployee, 0, boldText);
 
-                // sum hours on work type
-                if(w.getIsSumApprove()) {
-                    createCell(w.getSumWorkType(), rowWorkType, 1, cellColorGreenBold);
-                    createCell(w.getSumOverWork(), rowWorkType, 2, cellColorGreenBold);
+                // sum money on employee
+                int sumByOrder = e.getSumOnEmployeeByOrder();
+                int sumSpent = e.getSumRecordEmployee();
+                int sumLeft = sumByOrder - sumSpent;
+                if(e.getIsSumApprove()) {
+                    createCell(sumByOrder, rowEmployee, 1, cellColorGreenBold);
+                    createCell(sumSpent, rowEmployee, 2, cellColorGreenBold);
+                    createCell(sumLeft, rowEmployee, 3, cellColorGreenBold);
                 } else {
-                    createCell(w.getSumWorkType(), rowWorkType, 1, centerCellStyle);
-                    createCell(w.getSumOverWork(), rowWorkType, 2, centerCellStyle);
+                    createCell(sumByOrder, rowEmployee, 1, centerCellStyle);
+                    createCell(sumSpent, rowEmployee, 2, centerCellStyle);
+                    createCell(sumLeft, rowEmployee, 3, centerCellStyle);
                 }
 
 
-                ArrayList<int[]> sumTypeList;
-                sumTypeList = w.getHoursTypeList();
+                List<int[]> sumEmployeeList;
+                sumEmployeeList = e.getSumMoneyOnDayList();
 
-                // work type hours
-                for(int[] array: sumTypeList){
-                    int numDay = array[WorkList.NUM_DAY];
-                    int cellDay = numDay * 2 + 1;
-                    int workApprove = array[WorkList.APPROV];
+                // employee sum money on day
+                for(int[] array: sumEmployeeList){
+                    int numDay = array[MoneyList.NUM_DAY];
+                    int cellDay = numDay + 3;
+                    int moneyApprove = array[MoneyList.APPROV];
 
-                    if(workApprove > 0) {
-                        createCell(array[WorkList.WORK_TIME], rowWorkType, cellDay, cellColorGreen);
-                        createCell(array[WorkList.OVER_WORK], rowWorkType, cellDay+1, cellColorGreen);
+                    if(moneyApprove > 0) {
+                        createCell(array[MoneyList.SUM_MONEY], rowEmployee, cellDay, cellColorGreen);
                     } else {
-                        createCell(array[WorkList.WORK_TIME], rowWorkType, cellDay, uCenterCellStyle);
-                        createCell(array[WorkList.OVER_WORK], rowWorkType, cellDay+1, uCenterCellStyle);
+                        createCell(array[MoneyList.SUM_MONEY], rowEmployee, cellDay, uCenterCellStyle);
                     }
                 }
 
 
-                ArrayList<WorkList.WorkTypeWithEmployees.EmployeeWork> employeeList = w.getEmployeeList();
+                List<MoneyList.EmployeeWithMoneyType.MoneyTypeData> moneyTypeList = e.getMoneyTypeDataList();
 
-                // iterate through employees
+                // iterate through money type
                 rowNum++;
-                for(WorkList.WorkTypeWithEmployees.EmployeeWork e: employeeList){
+                for(MoneyList.EmployeeWithMoneyType.MoneyTypeData m: moneyTypeList){
                     int groupStart = rowNum;
-                    Row rowEmployee = sheet.createRow(rowNum);
-                    rowEmployee.createCell(0).setCellValue(e.getEmployee().toString());
+                    Row rowMoneyType= sheet.createRow(rowNum);
+                    rowMoneyType.createCell(0).setCellValue(m.getMoneyType().toString());
 
                     // sum hours over month for employee
-                    if(e.isSumAppove()) {
-                        createCell(e.getSumWorkEmployee(), rowEmployee, 1, cellColorGreen);
-                        createCell(e.getSumOverWorkEmployee(), rowEmployee, 2, cellColorGreen);
+                    if(m.isSumAppove()) {
+                        createCell(m.getSumMoneyType(), rowMoneyType, 2, cellColorGreen);
                     } else {
-                        createCell(e.getSumWorkEmployee(), rowEmployee, 1, uCenterCellStyle);
-                        createCell(e.getSumOverWorkEmployee(), rowEmployee, 2, uCenterCellStyle);
+                        createCell(m.getSumMoneyType(), rowMoneyType, 2, uCenterCellStyle);
                     }
 
-                    ArrayList<int[]> workSchedule;
-                    workSchedule = e.getWork();
+                    List<int[]> moneySchedule;
+                    moneySchedule = m.getData();
 
-                    for(int[] work_array: workSchedule){
-                        int numDay = work_array[WorkList.NUM_DAY];
-                        int cellDay = numDay * 2 + 1;
-                        int workApprove = work_array[WorkList.APPROV];
+                    for(int[] money_array: moneySchedule){
+                        int numDay = money_array[MoneyList.NUM_DAY];
+                        int cellDay = numDay + 3;
+                        int moneyApprove = money_array[MoneyList.APPROV];
 
-                        if(workApprove > 0) {
-                            createCell(work_array[WorkList.WORK_TIME], rowEmployee, cellDay, cellColorGreen);
-                            createCell(work_array[WorkList.OVER_WORK], rowEmployee, cellDay+1, cellColorGreen);
+                        if(moneyApprove > 0) {
+                            createCell(money_array[MoneyList.SUM_MONEY], rowMoneyType, cellDay, cellColorGreen);
                         } else {
-                            createCell(work_array[WorkList.WORK_TIME], rowEmployee, cellDay, uCenterCellStyle);
-                            createCell(work_array[WorkList.OVER_WORK], rowEmployee, cellDay+1, uCenterCellStyle);
+                            createCell(money_array[MoneyList.SUM_MONEY], rowMoneyType, cellDay, uCenterCellStyle);
                         }
 
                     }
@@ -623,11 +650,12 @@ public class ReportWorkTime {
 
         }
 
-        private void createOrderInformation(Sheet sheet, Order order, CellStyle orderInfoStyle){
-            String[] headerOrder = {"Заказ:", "Адресс:", "Описание:"};
+        private void createOrderInformation(Sheet sheet, Order order, MoneyList moneyList, CellStyle orderInfoStyle) {
+            String[] headerOrder = {"Заказ:", "Адресс:", "Описание:", "Общая сумма по заказу:",
+                                    "Потрачено:", "Остаток:"};
 
             int rowNum = 0;
-            for(String s: headerOrder){
+            for (String s : headerOrder) {
                 Row row = sheet.createRow(++rowNum);
 
 
@@ -635,11 +663,31 @@ public class ReportWorkTime {
                 headerCell.setCellStyle(orderInfoStyle);
                 headerCell.setCellValue(s);
 
-                switch (rowNum){
-                    case 1: row.createCell(1).setCellValue(order.getNameOrder()); break;
-                    case 2: row.createCell(1).setCellValue(order.getAddress()); break;
-                    case 3: row.createCell(1).setCellValue(order.getDescription()); break;
-                    default: break;
+                int allSum = moneyList.getSumMoneyForAllEmployee();
+                int allSpent = moneyList.getSumMoneyAllSpent();
+                int allLeft = allSum - allSpent;
+
+                switch (rowNum) {
+                    case 1:
+                        row.createCell(1).setCellValue(order.getNameOrder());
+                        break;
+                    case 2:
+                        row.createCell(1).setCellValue(order.getAddress());
+                        break;
+                    case 3:
+                        row.createCell(1).setCellValue(order.getDescription());
+                        break;
+                    case 4:
+                        row.createCell(1).setCellValue(allSum);
+                        break;
+                    case 5:
+                        row.createCell(1).setCellValue(allSpent);
+                        break;
+                    case 6:
+                        row.createCell(1).setCellValue(allLeft);
+                        break;
+                    default:
+                        break;
                 }
 
             }
@@ -650,69 +698,65 @@ public class ReportWorkTime {
             tableHeader[0] = "Ф.И.О."; tableHeader[1] = "Всего";
             tableHeader[2] = cbMonth.getValue().toUpperCase();
 
-            Row tableHeaderRow = sheet.createRow(5);
+            Row tableHeaderRow = sheet.createRow(8);
 
             int maxDaysInMonth = getMaxDaysInMonth(getNumMonth());
 
-            setStyleInRow(tableHeaderRow, (3 + 2 * maxDaysInMonth - 1), tableHeaderStyle);
+            setStyleInRow(tableHeaderRow, (4 + maxDaysInMonth - 1), tableHeaderStyle);
 
             createCell(tableHeader[0], tableHeaderRow, 0, tableHeaderStyle);
             createCell(tableHeader[1], tableHeaderRow, 1, tableHeaderStyle);
-            createCell(tableHeader[2], tableHeaderRow, 3, tableHeaderStyle);
+            createCell(tableHeader[2], tableHeaderRow, 4, tableHeaderStyle);
 
+            //fio
             sheet.addMergedRegion(new CellRangeAddress(
-                    5,
-                    6,
+                    8,
+                    9,
                     0,
                     0
             ));
 
+            //all
             sheet.addMergedRegion(new CellRangeAddress(
-                    5,
-                    5,
+                    8,
+                    8,
                     1,
-                    2
+                    3
             ));
 
+            //month
             sheet.addMergedRegion(new CellRangeAddress(
-                    5,
-                    5,
-                    3,
-                    3 + 2 * maxDaysInMonth - 1
+                    8,
+                    8,
+                    4,
+                    4 + maxDaysInMonth - 1
             ));
 
             // create row with number of days
-            Row tableNumDaysRow = sheet.createRow(6);
+            Row tableNumDaysRow = sheet.createRow(9);
 
-            setStyleInRow(tableNumDaysRow, (3 + 2 * maxDaysInMonth - 1), tableHeaderStyle);
+            setStyleInRow(tableNumDaysRow, (4 + maxDaysInMonth - 1), tableHeaderStyle);
 
-            int cellCount = 3;
+            int cellCount = 4;
             for(int i = 0; i < maxDaysInMonth; ++i){
                 Cell cell1 = tableNumDaysRow.createCell(cellCount);
                 cell1.setCellValue(i + 1);
                 cell1.setCellStyle(tableHeaderStyle);
 
-                Cell cell2 = tableHeaderRow.createCell(cellCount+1);
-                cell2.setCellStyle(tableHeaderStyle);
+                sheet.setColumnWidth(cellCount, 2000);
 
-                sheet.setColumnWidth(cellCount, 1000);
-                sheet.setColumnWidth(cellCount + 1,1000);
-
-                sheet.addMergedRegion(new CellRangeAddress(
-                        6,
-                        6,
-                        cellCount,
-                        cellCount + 1
-                ));
-
-                cellCount += 2;
+                ++cellCount;
 
             }
 
-            createCell("Раб-та, ч.", tableNumDaysRow, 1, tableHeaderStyle);
-            createCell("Перераб, ч.", tableNumDaysRow, 2, tableHeaderStyle);
-            sheet.setColumnWidth(1, 3300);
-            sheet.setColumnWidth(2, 3500);
+            createCell("По заказу, грн.", tableNumDaysRow, 1, tableHeaderStyle);
+            createCell("Потрачено, грн.", tableNumDaysRow, 2, tableHeaderStyle);
+            createCell("Остаток, грн.", tableNumDaysRow, 3, tableHeaderStyle);
+
+            sheet.setColumnWidth(1, 3800);
+            sheet.setColumnWidth(2, 3800);
+            sheet.setColumnWidth(3, 3500);
+
         }
 
         private void createCell( String value, Row row, int column, CellStyle cellStyle) {
@@ -747,6 +791,8 @@ public class ReportWorkTime {
             return yearMonth.lengthOfMonth();
         }
 
-    }
 
+
+
+    }
 }

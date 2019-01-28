@@ -66,6 +66,8 @@ public class MoneyQout {
         cbMonth.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                tfSum.clear();
+                tfCurrentSum.clear();
                 updateOrders();
             }
         });
@@ -73,6 +75,8 @@ public class MoneyQout {
         cbNameOrder.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                tfSum.clear();
+                tfCurrentSum.clear();
                 orderChanged();
             }
         });

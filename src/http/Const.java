@@ -41,6 +41,8 @@ public class Const {
     static final String URL_GET_ACTIVE_ORDERS_FOR_MANAGER = Const.URL_SERVER + "/admin/get_active_orders_for_manager.php";
 
     static final String URL_GET_DATA_TO_REPORT_WORK = Const.URL_SERVER + "/admin/get_work_to_report.php";
+    static final String URL_GET_DATA_TO_REPORT_MONEY = Const.URL_SERVER + "/admin/get_money_to_report.php";
+
 
     static final String URL_ALL_MONEY_TYPE = URL_SERVER + "/admin/get_all_money_type.php";
     static final String URL_INSERT_MONEY_TYPE = URL_SERVER + "/admin/insert_money_type.php";
@@ -53,6 +55,9 @@ public class Const {
     static final String URL_INSERT_MONEY_QOUT = Const.URL_SERVER + "/manager/insert_money_sum.php";
     static final String URL_UPDATE_MONEY_QOUT = Const.URL_SERVER + "/manager/update_money_sum.php";
     static final String URL_DELETE_MONEY_QOUT = Const.URL_SERVER + "/manager/delete_money_sum.php";
+
+    static final String URL_GET_MONEY_ORDERS_FOR_MANAGER = Const.URL_SERVER + "/manager/get_money_orders_for_manager.php";
+
 
     //------------------------------------------------------------------------------------
     // EMPLOYEE_TABLE
@@ -115,15 +120,28 @@ public class Const {
     public static final String WORK_TIME_APPROVAL = "work_approval";
 
     //------------------------------------------------------------------------------------
-    // WORK_TYPE_TABLE
+    // MONEY_TYPE_TABLE
     public static final String MONEY_TYPE_TABLE = "money_type";
     public static final String MONEY_TYPE_ID = "id";
     public static final String MONEY_TYPE_NAME = "name_money";
 
     //------------------------------------------------------------------------------------
-    // WORK_TYPE_TABLE
+    // MONEY_QOUT_TABLE
     public static final String MONEY_QOUT_TABLE = "money_on_order";
     public static final String MONEY_QOUT_ID = "id";
     public static final String MONEY_QOUT_HOUR_PER_MONTH_ID = "hours_per_month_id";
     public static final String MONEY_QOUT_SUM = "sum_money";
+
+    //------------------------------------------------------------------------------------
+    // MONEY_SPENT_TABLE TABLE
+    public static final String MONEY_SPENT_TABLE = "money_spent";
+    public static final String MONEY_SPENT_ID = "id";
+    public static final String MONEY_SPENT_ON_ORDER_ID = "money_on_order_id";
+    public static final String MONEY_SPENT_TYPE_ID = "money_type_id";
+    public static final String MONEY_SPENT_NUM_DAY = "num_day";
+    public static final String MONEY_SPENT_NUM = "num_money";
+    public static final String MONEY_SPENT_APPROVE = "approve";
+
+    //------------------------------------------------------------------------------------
+
 }
