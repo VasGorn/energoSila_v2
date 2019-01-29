@@ -57,12 +57,19 @@ public class ReportMoney {
     @FXML
     private Button btnCreate;
 
+    private String[] monthArray = {"Январь", "Февраль", "Март",
+            "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь",
+            "Окрябрь", "Ноябрь", "Декабрь"};
+
     @FXML
     private void initialize(){
 
         setUpMenegers();
 
         setItemsToComboBoxMonth();
+
+        setCurrentMonth();
 
         cbManager.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -109,6 +116,13 @@ public class ReportMoney {
         });
 
         btnCreate.setDisable(true);
+
+    }
+
+    private void setCurrentMonth(){
+        int numMonth = ServerDate.getNumMonth();
+
+        if(numMonth <= 12) cbMonth.setValue(monthArray[numMonth - 1]);
 
     }
 
@@ -159,18 +173,11 @@ public class ReportMoney {
     //--------------------------------------------------------------------------
     //-----------------------------PRIVATE FUNCTION-----------------------------
     private void setItemsToComboBoxMonth(){
-        cbMonth.getItems().add("Январь");
-        cbMonth.getItems().add("Февраль");
-        cbMonth.getItems().add("Март");
-        cbMonth.getItems().add("Апрель");
-        cbMonth.getItems().add("Май");
-        cbMonth.getItems().add("Июнь");
-        cbMonth.getItems().add("Июль");
-        cbMonth.getItems().add("Август");
-        cbMonth.getItems().add("Сентябрь");
-        cbMonth.getItems().add("Окрябрь");
-        cbMonth.getItems().add("Ноябрь");
-        cbMonth.getItems().add("Декабрь");
+
+        for(int i = 0; i < 12; ++i){
+            cbMonth.getItems().add(monthArray[i]);
+        }
+
     }
 
     //--------------------------------------------------------------------------
@@ -199,32 +206,34 @@ public class ReportMoney {
 
         String sMonth = cbMonth.getValue();
 
-        if(sMonth.equals("Январь"))
-            return 1;
-        else if(sMonth.equals("Февраль"))
-            return 2;
-        else if(sMonth.equals("Март"))
-            return 3;
-        else if(sMonth.equals("Апрель"))
-            return 4;
-        else if(sMonth.equals("Май"))
-            return 5;
-        else if(sMonth.equals("Июнь"))
-            return 6;
-        else if(sMonth.equals("Июль"))
-            return 7;
-        else if(sMonth.equals("Август"))
-            return 8;
-        else if(sMonth.equals("Сентябрь"))
-            return 9;
-        else if(sMonth.equals("Окрябрь"))
-            return 10;
-        else if(sMonth.equals("Ноябрь"))
-            return 11;
-        else if(sMonth.equals("Декабрь"))
-            return 12;
-        else
-            return 0;
+        switch (sMonth) {
+            case "Январь":
+                return 1;
+            case "Февраль":
+                return 2;
+            case "Март":
+                return 3;
+            case "Апрель":
+                return 4;
+            case "Май":
+                return 5;
+            case "Июнь":
+                return 6;
+            case "Июль":
+                return 7;
+            case "Август":
+                return 8;
+            case "Сентябрь":
+                return 9;
+            case "Окрябрь":
+                return 10;
+            case "Ноябрь":
+                return 11;
+            case "Декабрь":
+                return 12;
+            default:
+                return 0;
+        }
     }
 
     //--------------------------------------------------------------------------

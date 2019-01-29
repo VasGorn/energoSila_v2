@@ -59,6 +59,11 @@ public class ReportWorkTime {
     @FXML
     private Button btnCreate;
 
+    private String[] monthArray = {"Январь", "Февраль", "Март",
+            "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь",
+            "Окрябрь", "Ноябрь", "Декабрь"};
+
     @FXML
     private void initialize(){
         new Thread(new Runnable() {
@@ -104,6 +109,8 @@ public class ReportWorkTime {
         }).start();
 
         setItemsToComboBoxMonth();
+        
+        setCurrentMonth();
 
         cbManager.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -157,18 +164,18 @@ public class ReportWorkTime {
     //--------------------------------------------------------------------------
     //-----------------------------PRIVATE FUNCTION-----------------------------
     private void setItemsToComboBoxMonth(){
-        cbMonth.getItems().add("Январь");
-        cbMonth.getItems().add("Февраль");
-        cbMonth.getItems().add("Март");
-        cbMonth.getItems().add("Апрель");
-        cbMonth.getItems().add("Май");
-        cbMonth.getItems().add("Июнь");
-        cbMonth.getItems().add("Июль");
-        cbMonth.getItems().add("Август");
-        cbMonth.getItems().add("Сентябрь");
-        cbMonth.getItems().add("Окрябрь");
-        cbMonth.getItems().add("Ноябрь");
-        cbMonth.getItems().add("Декабрь");
+
+        for(int i = 0; i < 12; ++i){
+            cbMonth.getItems().add(monthArray[i]);
+        }
+
+    }
+
+    private void setCurrentMonth(){
+        int numMonth = ServerDate.getNumMonth();
+
+        if(numMonth <= 12) cbMonth.setValue(monthArray[numMonth - 1]);
+
     }
 
     //--------------------------------------------------------------------------
