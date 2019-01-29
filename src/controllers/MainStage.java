@@ -41,6 +41,13 @@ public class MainStage {
     private Button btnReportMoney;
 
     @FXML
+    private Button btnBack;
+
+    @FXML
+    private Button btnClose;
+
+
+    @FXML
     private void initialize(){
 
         if(User.isManager()){
@@ -57,6 +64,9 @@ public class MainStage {
             btnListMoney.setDisable(false);
             btnReportMoney.setDisable(false);
         }
+
+        btnBack.setDisable(false);
+        btnClose.setDisable(false);
     }
 
 
@@ -217,4 +227,34 @@ public class MainStage {
             a.printStackTrace();
         }
     }
+
+    @FXML
+    public void btnBackClicked(){
+        Stage stage = (Stage) btnBack.getScene().getWindow();
+        stage.close();
+
+        Parent root;
+        try {
+            root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+            Stage mainStage = new Stage();
+            mainStage.setTitle("LOGIN");
+
+            Scene scene = new Scene(root);
+
+            mainStage.setScene(scene);
+            mainStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @FXML
+    public void btnCloseClicked(){
+        Stage stage = (Stage) btnClose.getScene().getWindow();
+        stage.close();
+    }
+
+
 }

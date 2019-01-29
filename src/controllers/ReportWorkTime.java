@@ -109,7 +109,7 @@ public class ReportWorkTime {
         }).start();
 
         setItemsToComboBoxMonth();
-        
+
         setCurrentMonth();
 
         cbManager.setOnAction(new EventHandler<ActionEvent>() {

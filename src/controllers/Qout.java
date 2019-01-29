@@ -463,18 +463,16 @@ public class Qout {
 
 
     private void setItemsToComboBoxMonth(){
-        cbMonth.getItems().add("Январь");
-        cbMonth.getItems().add("Февраль");
-        cbMonth.getItems().add("Март");
-        cbMonth.getItems().add("Апрель");
-        cbMonth.getItems().add("Май");
-        cbMonth.getItems().add("Июнь");
-        cbMonth.getItems().add("Июль");
-        cbMonth.getItems().add("Август");
-        cbMonth.getItems().add("Сентябрь");
-        cbMonth.getItems().add("Окрябрь");
-        cbMonth.getItems().add("Ноябрь");
-        cbMonth.getItems().add("Декабрь");
+
+        //add values to cbMonth
+        for(int i = 1; i <= 12; ++i){
+            String nameMonth = ServerDate.getNameOfMonth(i);
+           cbMonth.getItems().add(nameMonth);
+        }
+
+        //set current month
+        cbMonth.setValue(ServerDate.getCurrentNameOfMonth());
+
     }
 
     private void updateTable(){
