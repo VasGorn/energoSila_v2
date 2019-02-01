@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class WorkList {
+public class ReportWork {
     public static final int NUM_DAY = 0;
     public static final int WORK_TIME = 1;
     public static final int OVER_WORK = 2;
@@ -22,17 +22,17 @@ public class WorkList {
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR
-    public WorkList(Order order){
+    public ReportWork(Order order){
         this.order = order;
         this.workTypeList = new ArrayList<>();
     }
 
-    public WorkList(Order order, ArrayList<WorkTypeWithEmployees> workTypeList){
+    public ReportWork(Order order, ArrayList<WorkTypeWithEmployees> workTypeList){
         this.order = order;
         this.workTypeList = workTypeList;
     }
 
-    public WorkList(Order order, JSONArray jsonArray){
+    public ReportWork(Order order, JSONArray jsonArray){
         this.order = order;
         this.workTypeList = new ArrayList<>();
 

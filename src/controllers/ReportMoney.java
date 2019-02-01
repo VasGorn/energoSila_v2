@@ -9,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import model.Employee;
-import model.MoneyList;
 import model.Order;
 import model.ServerDate;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -390,7 +389,7 @@ public class ReportMoney {
         @Override
         public void run() {
             activateProgressIndicator(true);
-            List<MoneyList> moneyList = new ArrayList<>();
+            List<model.ReportMoney> reportMoneyList = new ArrayList<>();
             boolean flag = true;
 
             for (Order o : orderList) {
@@ -406,8 +405,8 @@ public class ReportMoney {
                     if (success == 1) {
                         JSONArray moneyListJSON = jsonObj.getJSONArray("moneyReport");
 
-                        MoneyList work = new MoneyList(o, moneyListJSON);
-                        moneyList.add(work);
+                        model.ReportMoney work = new model.ReportMoney(o, moneyListJSON);
+                        reportMoneyList.add(work);
 
                     } else {
                         Massage.showDataNotFound();
@@ -423,18 +422,18 @@ public class ReportMoney {
 
             if (flag) {
                 // test without excel
-                for (MoneyList m: moneyList) {
+                for (model.ReportMoney m: reportMoneyList) {
                     System.out.println("order: " + m.getOrder().toString() +
                             "; all money: " + m.getSumMoneyForAllEmployee());
-                    List<MoneyList.EmployeeWithMoneyType> e = m.getEmployeeList();
+                    List<model.ReportMoney.EmployeeWithMoneyType> e = m.getEmployeeList();
 
-                    for(MoneyList.EmployeeWithMoneyType w: e){
+                    for(model.ReportMoney.EmployeeWithMoneyType w: e){
                         System.out.println(w.getEmployee().toString() + "; money record: " +
                                 w.getSumRecordEmployee() + "; money on order: " +
                                 w.getSumOnEmployeeByOrder());
-                        List<MoneyList.EmployeeWithMoneyType.MoneyTypeData> d = w.getMoneyTypeDataList();
+                        List<model.ReportMoney.EmployeeWithMoneyType.MoneyTypeData> d = w.getMoneyTypeDataList();
 
-                        for(MoneyList.EmployeeWithMoneyType.MoneyTypeData t: d){
+                        for(model.ReportMoney.EmployeeWithMoneyType.MoneyTypeData t: d){
                             System.out.println(t.getMoneyType().toString());
                             List<int[]> a = t.getData();
 
@@ -448,7 +447,7 @@ public class ReportMoney {
 
                 }
 
-                createExcel(moneyList);
+                createExcel(reportMoneyList);
             }
 
 
@@ -456,7 +455,7 @@ public class ReportMoney {
 
         }
 
-        private void createExcel(List<MoneyList> moneyList) {
+        private void createExcel(List<model.ReportMoney> reportMoneyList) {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -464,7 +463,7 @@ public class ReportMoney {
                     // create workbook
                     Workbook workbook = new HSSFWorkbook();
 
-                    for (MoneyList w : moneyList) {
+                    for (model.ReportMoney w : reportMoneyList) {
                         createSheet(w, workbook);
                     }
 
@@ -501,8 +500,8 @@ public class ReportMoney {
             });
         }
 
-        private void createSheet(MoneyList moneyList, Workbook workbook) {
-            Order order = moneyList.getOrder();
+        private void createSheet(model.ReportMoney reportMoney, Workbook workbook) {
+            Order order = reportMoney.getOrder();
 
             /* CreationHelper helps us create instances of various things like DataFormat,
             Hyperlink, RichTextString etc, in a format (HSSF, XSSF) independent way */
@@ -554,7 +553,7 @@ public class ReportMoney {
             sheet.setColumnWidth(0, 10000);
             //-----------------------------------------------------------------
             // ORDER INFORMATION
-            createOrderInformation(sheet, order, moneyList, headerCellStyle);
+            createOrderInformation(sheet, order, reportMoney, headerCellStyle);
 
             //-----------------------------------------------------------------
             // TABLE HEADER
@@ -577,13 +576,13 @@ public class ReportMoney {
             cellColorGreenBold.setFont(headerFontBlack);
             setAllBorder(cellColorGreenBold, BorderStyle.THIN);
 
-            List<MoneyList.EmployeeWithMoneyType> employeeList;
+            List<model.ReportMoney.EmployeeWithMoneyType> employeeList;
 
-            employeeList = moneyList.getEmployeeList();
+            employeeList = reportMoney.getEmployeeList();
 
             // iterate through employee list
             int rowNum = 10;
-            for(MoneyList.EmployeeWithMoneyType e: employeeList){
+            for(model.ReportMoney.EmployeeWithMoneyType e: employeeList){
                 Row rowEmployee = sheet.createRow(rowNum);
 
                 // employee name
@@ -609,23 +608,23 @@ public class ReportMoney {
 
                 // employee sum money on day
                 for(int[] array: sumEmployeeList){
-                    int numDay = array[MoneyList.NUM_DAY];
+                    int numDay = array[model.ReportMoney.NUM_DAY];
                     int cellDay = numDay + 3;
-                    int moneyApprove = array[MoneyList.APPROV];
+                    int moneyApprove = array[model.ReportMoney.APPROV];
 
                     if(moneyApprove > 0) {
-                        createCell(array[MoneyList.SUM_MONEY], rowEmployee, cellDay, cellColorGreen);
+                        createCell(array[model.ReportMoney.SUM_MONEY], rowEmployee, cellDay, cellColorGreen);
                     } else {
-                        createCell(array[MoneyList.SUM_MONEY], rowEmployee, cellDay, uCenterCellStyle);
+                        createCell(array[model.ReportMoney.SUM_MONEY], rowEmployee, cellDay, uCenterCellStyle);
                     }
                 }
 
 
-                List<MoneyList.EmployeeWithMoneyType.MoneyTypeData> moneyTypeList = e.getMoneyTypeDataList();
+                List<model.ReportMoney.EmployeeWithMoneyType.MoneyTypeData> moneyTypeList = e.getMoneyTypeDataList();
 
                 // iterate through money type
                 rowNum++;
-                for(MoneyList.EmployeeWithMoneyType.MoneyTypeData m: moneyTypeList){
+                for(model.ReportMoney.EmployeeWithMoneyType.MoneyTypeData m: moneyTypeList){
                     int groupStart = rowNum;
                     Row rowMoneyType= sheet.createRow(rowNum);
                     rowMoneyType.createCell(0).setCellValue(m.getMoneyType().toString());
@@ -641,14 +640,14 @@ public class ReportMoney {
                     moneySchedule = m.getData();
 
                     for(int[] money_array: moneySchedule){
-                        int numDay = money_array[MoneyList.NUM_DAY];
+                        int numDay = money_array[model.ReportMoney.NUM_DAY];
                         int cellDay = numDay + 3;
-                        int moneyApprove = money_array[MoneyList.APPROV];
+                        int moneyApprove = money_array[model.ReportMoney.APPROV];
 
                         if(moneyApprove > 0) {
-                            createCell(money_array[MoneyList.SUM_MONEY], rowMoneyType, cellDay, cellColorGreen);
+                            createCell(money_array[model.ReportMoney.SUM_MONEY], rowMoneyType, cellDay, cellColorGreen);
                         } else {
-                            createCell(money_array[MoneyList.SUM_MONEY], rowMoneyType, cellDay, uCenterCellStyle);
+                            createCell(money_array[model.ReportMoney.SUM_MONEY], rowMoneyType, cellDay, uCenterCellStyle);
                         }
 
                     }
@@ -659,7 +658,7 @@ public class ReportMoney {
 
         }
 
-        private void createOrderInformation(Sheet sheet, Order order, MoneyList moneyList, CellStyle orderInfoStyle) {
+        private void createOrderInformation(Sheet sheet, Order order, model.ReportMoney reportMoney, CellStyle orderInfoStyle) {
             String[] headerOrder = {"Заказ:", "Адресс:", "Описание:", "Общая сумма по заказу:",
                                     "Потрачено:", "Остаток:"};
 
@@ -672,8 +671,8 @@ public class ReportMoney {
                 headerCell.setCellStyle(orderInfoStyle);
                 headerCell.setCellValue(s);
 
-                int allSum = moneyList.getSumMoneyForAllEmployee();
-                int allSpent = moneyList.getSumMoneyAllSpent();
+                int allSum = reportMoney.getSumMoneyForAllEmployee();
+                int allSpent = reportMoney.getSumMoneyAllSpent();
                 int allLeft = allSum - allSpent;
 
                 switch (rowNum) {

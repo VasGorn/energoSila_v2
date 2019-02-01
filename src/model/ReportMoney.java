@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoneyList {
+public class ReportMoney {
     public static final int NUM_DAY = 0;
     public static final int SUM_MONEY = 1;
     public static final int APPROV = 2;
@@ -23,17 +23,17 @@ public class MoneyList {
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR
-    public MoneyList(Order order){
+    public ReportMoney(Order order){
         this.order = order;
         this.employeeList = new ArrayList<>();
     }
 
-    public MoneyList(Order order, ArrayList<EmployeeWithMoneyType> employeeList){
+    public ReportMoney(Order order, ArrayList<EmployeeWithMoneyType> employeeList){
         this.order = order;
         this.employeeList = employeeList;
     }
 
-    public MoneyList(Order order, JSONArray jsonArray){
+    public ReportMoney(Order order, JSONArray jsonArray){
         this.order = order;
         this.employeeList = new ArrayList<>();
         this.sumMoneyForAllEmployee = 0;

@@ -1,5 +1,6 @@
 package model;
 
+import java.time.YearMonth;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -78,5 +79,10 @@ public final class ServerDate {
 
     public static int getMaxDaysInMonth(){
         return serverCalender.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+
+    public static int getMaxDaysInMonth(int numMonth){
+        YearMonth yearMonth = YearMonth.of(getNumberOfYear(), numMonth);
+        return yearMonth.lengthOfMonth();
     }
 }

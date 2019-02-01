@@ -41,6 +41,7 @@ public class Const {
     static final String URL_GET_ACTIVE_ORDERS_FOR_MANAGER = Const.URL_SERVER + "/admin/get_active_orders_for_manager.php";
 
     static final String URL_GET_DATA_TO_REPORT_WORK = Const.URL_SERVER + "/admin/get_work_to_report.php";
+    static final String URL_GET_DATA_TO_FINALL_REPORT_WORK = Const.URL_SERVER + "/admin/get_final_report_work_time.php";
     static final String URL_GET_DATA_TO_REPORT_MONEY = Const.URL_SERVER + "/admin/get_money_to_report.php";
 
 

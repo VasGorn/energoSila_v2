@@ -2,7 +2,7 @@ package helper;
 
 import org.apache.poi.ss.usermodel.*;
 
-public class Excel {
+public class ExcelStyle {
     private Workbook workbook;
     public static Font headerFontGreen;
     public static Font headerFontBlack;
@@ -16,7 +16,7 @@ public class Excel {
     public static CellStyle cellColorGreenBold;
 
 
-    public Excel(Workbook workbook) {
+    public ExcelStyle(Workbook workbook) {
         this.workbook = workbook;
 
         // create a GREEN Font for styling header cells
@@ -92,7 +92,7 @@ public class Excel {
         //return  cellStyle;
     }
 
-    private void setStyleInRow(Row row, int maxNumCell,CellStyle cellStyle){
+    public void setStyleInRow(Row row, int maxNumCell,CellStyle cellStyle){
         for(int m = 0; m <= maxNumCell; ++m){
             Cell cell = row.createCell(m);
             cell.setCellStyle(cellStyle);

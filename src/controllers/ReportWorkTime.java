@@ -1,20 +1,16 @@
 package controllers;
 
+import helper.SheetTotalReport;
 import http.Const;
 import http.HttpHandler;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import model.Employee;
-import model.Order;
-import model.ServerDate;
-import model.WorkList;
+import model.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -144,7 +140,6 @@ public class ReportWorkTime {
                 List<Order> orderList;
 
                 Order order = cbOrder.getValue();
-
 
 
                 if(order.getId() == 0){
@@ -387,45 +382,73 @@ public class ReportWorkTime {
         @Override
         public void run() {
             activateProgressIndicator(true);
-            ArrayList<WorkList> workList = new ArrayList<>();
+            ArrayList<ReportWork> reportWorkList = new ArrayList<>();
             boolean flag = true;
+
+            // get final work report
+            FinalWorkReport finalWorkReport = null;
+            if(orderList.size() > 1) {
+                String managerID = String.valueOf(cbManager.getValue().getID());
+                String jsonStrFinalWorkReport = HttpHandler.getDataToFinalReportWork(managerID, numMonth);
+
+                JSONArray jArrayFinalReport = getJSONfromStr(jsonStrFinalWorkReport, "final_work_report");
+
+                if(jArrayFinalReport != null){
+                    finalWorkReport = new FinalWorkReport(jArrayFinalReport);
+                }else{
+
+                    activateProgressIndicator(false);
+                    return;
+                }
+            }
 
             for(Order o: orderList) {
                 if(o.getId() == 0) continue;
 
                 String orderID = String.valueOf(o.getId());
-                String jsonStr = HttpHandler.getDataToReportWork(orderID, numMonth);
+                String jsonStrWorkReport = HttpHandler.getDataToReportWork(orderID, numMonth);
 
-                if (jsonStr != null) {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-                    int success = jsonObj.getInt("success");
+                JSONArray jArrayWorkReport = getJSONfromStr(jsonStrWorkReport,"workByType");
 
-                    if (success == 1) {
-                        JSONArray workListJSON = jsonObj.getJSONArray("workByType");
-
-                        WorkList work = new WorkList(o, workListJSON);
-                        workList.add(work);
-
-                    } else {
-                        Massage.showDataNotFound();
-                        flag = false;
-                        break;
-                    }
-                } else {
-                    Massage.showNetworkError();
+                if(jArrayWorkReport != null) {
+                    ReportWork work = new ReportWork(o, jArrayWorkReport);
+                    reportWorkList.add(work);
+                }else{
                     flag = false;
                     break;
                 }
+
             }
 
             if(flag) {
-                createExcel(workList);
+                createExcel(reportWorkList, finalWorkReport);
             }
 
             activateProgressIndicator(false);
         }
 
-        private void createExcel(ArrayList<WorkList> workList){
+        private JSONArray getJSONfromStr(String strData, String dataName){
+            if (strData != null) {
+                JSONObject jsonObj = new JSONObject(strData);
+
+                int success = jsonObj.getInt("success");
+
+                if (success == 1) {
+
+                    return jsonObj.getJSONArray(dataName);
+
+                } else {
+                    Massage.showDataNotFound();
+                }
+            } else {
+                Massage.showNetworkError();
+
+            }
+
+            return null;
+        }
+
+        private void createExcel(ArrayList<ReportWork> reportWorkList, FinalWorkReport finReport){
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -433,7 +456,16 @@ public class ReportWorkTime {
                     // create workbook
                     Workbook workbook = new HSSFWorkbook();
 
-                    for(WorkList w: workList){
+                    // create helper class
+
+                    if(finReport != null){
+                        String nameMonth = cbMonth.getValue().toUpperCase();
+                        int numMonth = getNumMonth();
+                        new SheetTotalReport(workbook, finReport, nameMonth, numMonth);
+                        //createTotalSheet(finReport, workbook);
+                    }
+
+                    for(ReportWork w: reportWorkList){
                         createSheet(w, workbook);
                     }
 
@@ -470,8 +502,9 @@ public class ReportWorkTime {
             });
         }
 
-        private void createSheet(WorkList workList, Workbook workbook){
-            Order order = workList.getOrder();
+
+        private void createSheet(ReportWork reportWork, Workbook workbook){
+            Order order = reportWork.getOrder();
 
 
             /* CreationHelper helps us create instances of various things like DataFormat,
@@ -547,13 +580,13 @@ public class ReportWorkTime {
             cellColorGreenBold.setFont(headerFontBlack);
             setAllBorder(cellColorGreenBold, BorderStyle.THIN);
 
-            ArrayList<WorkList.WorkTypeWithEmployees> workTypeList;
+            ArrayList<ReportWork.WorkTypeWithEmployees> workTypeList;
 
-            workTypeList = workList.getWorkTypeList();
+            workTypeList = reportWork.getWorkTypeList();
 
             // iterate through work type list
             int rowNum = 7;
-            for(WorkList.WorkTypeWithEmployees w: workTypeList){
+            for(ReportWork.WorkTypeWithEmployees w: workTypeList){
                 Row rowWorkType = sheet.createRow(rowNum);
 
                 // work type name
@@ -574,25 +607,25 @@ public class ReportWorkTime {
 
                 // work type hours
                 for(int[] array: sumTypeList){
-                    int numDay = array[WorkList.NUM_DAY];
+                    int numDay = array[ReportWork.NUM_DAY];
                     int cellDay = numDay * 2 + 1;
-                    int workApprove = array[WorkList.APPROV];
+                    int workApprove = array[ReportWork.APPROV];
 
                     if(workApprove > 0) {
-                        createCell(array[WorkList.WORK_TIME], rowWorkType, cellDay, cellColorGreen);
-                        createCell(array[WorkList.OVER_WORK], rowWorkType, cellDay+1, cellColorGreen);
+                        createCell(array[ReportWork.WORK_TIME], rowWorkType, cellDay, cellColorGreen);
+                        createCell(array[ReportWork.OVER_WORK], rowWorkType, cellDay+1, cellColorGreen);
                     } else {
-                        createCell(array[WorkList.WORK_TIME], rowWorkType, cellDay, uCenterCellStyle);
-                        createCell(array[WorkList.OVER_WORK], rowWorkType, cellDay+1, uCenterCellStyle);
+                        createCell(array[ReportWork.WORK_TIME], rowWorkType, cellDay, uCenterCellStyle);
+                        createCell(array[ReportWork.OVER_WORK], rowWorkType, cellDay+1, uCenterCellStyle);
                     }
                 }
 
 
-                ArrayList<WorkList.WorkTypeWithEmployees.EmployeeWork> employeeList = w.getEmployeeList();
+                ArrayList<ReportWork.WorkTypeWithEmployees.EmployeeWork> employeeList = w.getEmployeeList();
 
                 // iterate through employees
                 rowNum++;
-                for(WorkList.WorkTypeWithEmployees.EmployeeWork e: employeeList){
+                for(ReportWork.WorkTypeWithEmployees.EmployeeWork e: employeeList){
                     int groupStart = rowNum;
                     Row rowEmployee = sheet.createRow(rowNum);
                     rowEmployee.createCell(0).setCellValue(e.getEmployee().toString());
@@ -610,16 +643,16 @@ public class ReportWorkTime {
                     workSchedule = e.getWork();
 
                     for(int[] work_array: workSchedule){
-                        int numDay = work_array[WorkList.NUM_DAY];
+                        int numDay = work_array[ReportWork.NUM_DAY];
                         int cellDay = numDay * 2 + 1;
-                        int workApprove = work_array[WorkList.APPROV];
+                        int workApprove = work_array[ReportWork.APPROV];
 
                         if(workApprove > 0) {
-                            createCell(work_array[WorkList.WORK_TIME], rowEmployee, cellDay, cellColorGreen);
-                            createCell(work_array[WorkList.OVER_WORK], rowEmployee, cellDay+1, cellColorGreen);
+                            createCell(work_array[ReportWork.WORK_TIME], rowEmployee, cellDay, cellColorGreen);
+                            createCell(work_array[ReportWork.OVER_WORK], rowEmployee, cellDay+1, cellColorGreen);
                         } else {
-                            createCell(work_array[WorkList.WORK_TIME], rowEmployee, cellDay, uCenterCellStyle);
-                            createCell(work_array[WorkList.OVER_WORK], rowEmployee, cellDay+1, uCenterCellStyle);
+                            createCell(work_array[ReportWork.WORK_TIME], rowEmployee, cellDay, uCenterCellStyle);
+                            createCell(work_array[ReportWork.OVER_WORK], rowEmployee, cellDay+1, uCenterCellStyle);
                         }
 
                     }

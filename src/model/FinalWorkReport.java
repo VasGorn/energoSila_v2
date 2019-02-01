@@ -7,44 +7,35 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoneyList {
-    public static final int NUM_DAY = 0;
-    public static final int SUM_MONEY = 1;
-    public static final int APPROV = 2;
+public class FinalWorkReport {
 
-    private Order order;
-    private List<EmployeeWithMoneyType> employeeList;
-    private int sumMoneyForAllEmployee;
-    private int sumMoneyAllSpent;
+    public static final int WORK_TIME = 0;
+    public static final int OVER_WORK = 1;
+    public static final int NUM_DAY = 2;
 
-    private static final String MONEY_TYPE = "money_type";
-    private static final String MONEY_DATA = "money_data";
+    private List<EmployeeWithWorkType> employeeList;
+
+    private static final String WORK_TYPE = "work_type";
+    private static final String WORK_DATA = "work_data";
+
+    private static final String SUM_EMPLOYEE_WORK = "employee_work_hours";
+    private static final String SUM_EMPLOYEE_OVER_WORK = "employee_over_work_hours";
+
+    private static final String SUM_WORKTYPE_WORK = "work_type_hours";
+    private static final String SUM_WORKTYPE_OVER_WORK = "work_type_over_hours";
 
 
     //----------------------------------------------------------------------
     // CONSTRUCTOR
-    public MoneyList(Order order){
-        this.order = order;
-        this.employeeList = new ArrayList<>();
-    }
 
-    public MoneyList(Order order, ArrayList<EmployeeWithMoneyType> employeeList){
-        this.order = order;
-        this.employeeList = employeeList;
-    }
-
-    public MoneyList(Order order, JSONArray jsonArray){
-        this.order = order;
+    public FinalWorkReport(JSONArray jsonArray){
         this.employeeList = new ArrayList<>();
-        this.sumMoneyForAllEmployee = 0;
-        this.sumMoneyAllSpent = 0;
+
         // iterate by Employee in JSON
         for(int i = 0; i < jsonArray.length(); ++i){
             JSONObject jEmployee = jsonArray.getJSONObject(i);
-            int sumEmployee = jEmployee.getInt(Const.MONEY_QOUT_SUM);
 
-            sumMoneyForAllEmployee += sumEmployee;
-
+            // get employee from json
             int employeeID = jEmployee.getInt(Const.EMPLOYEE_ID);
             String lastname = jEmployee.getString(Const.EMPLOYEE_LASTNAME);
             String firstname = jEmployee.getString(Const.EMPLOYEE_FIRSTNAME);
@@ -52,115 +43,95 @@ public class MoneyList {
 
             Employee employee = new Employee(lastname, firstname, middlename, employeeID);
 
-            List<EmployeeWithMoneyType.MoneyTypeData> newMoneyTypeList = new ArrayList<>();
+            // get sum hours from json
+            int sumAllWork = jEmployee.getInt(SUM_EMPLOYEE_WORK);
+            int sumAllOverWork = jEmployee.getInt(SUM_EMPLOYEE_OVER_WORK);
+            int[] sumArrayEmployee = {sumAllWork, sumAllOverWork};
 
-            EmployeeWithMoneyType newEmployeeWithMoneyType = new EmployeeWithMoneyType(employee);
-            newEmployeeWithMoneyType.setSumOnEmployeeByOrder(sumEmployee);
+            List<EmployeeWithWorkType.WorkTypeData> newWorkTypeList = new ArrayList<>();
 
-            //iterate by Money Type
-            JSONArray moneyTypeArray = jEmployee.getJSONArray(MONEY_TYPE);
-            for(int j = 0; j < moneyTypeArray.length(); ++j){
-                JSONObject jMoneyType = moneyTypeArray.getJSONObject(j);
+            EmployeeWithWorkType newEmployeeWithWorkType = new EmployeeWithWorkType(employee);
+            newEmployeeWithWorkType.setSumWorkEmployee(sumArrayEmployee);
 
-                int moneyTypeID = jMoneyType.getInt(Const.MONEY_TYPE_ID);
-                String moneyTypeName = jMoneyType.getString(Const.MONEY_TYPE_NAME);
+            //iterate by Work Type
+            JSONArray workTypeArray = jEmployee.getJSONArray(WORK_TYPE);
+            for(int j = 0; j < workTypeArray.length(); ++j){
+                JSONObject jWorkType = workTypeArray.getJSONObject(j);
 
-                WorkType moneyType = new WorkType(moneyTypeID, moneyTypeName);
+                // get work type from json
+                int workTypeID = jWorkType.getInt(Const.WORK_TYPE_ID);
+                String workTypeName = jWorkType.getString(Const.WORK_TYPE_NAME);
 
-                List<int[]> moneyDataList = new ArrayList<>();
+                WorkType workType = new WorkType(workTypeID, workTypeName);
 
-                EmployeeWithMoneyType.MoneyTypeData newMoneyTypeData =
-                        newEmployeeWithMoneyType.new MoneyTypeData(moneyType);
+                // get sum work type hours
+                int sumTypeWork = jWorkType.getInt(SUM_WORKTYPE_WORK);
+                int sumTypeOverWork = jWorkType.getInt(SUM_WORKTYPE_OVER_WORK);
+                int[] sumArrayWorkType = {sumTypeWork, sumTypeOverWork};
 
-                //iterate by money data
-                JSONArray moneyArray = jMoneyType.getJSONArray(MONEY_DATA);
-                for(int k = 0; k < moneyArray.length(); ++k){
-                    JSONObject jData = moneyArray.getJSONObject(k);
-                    int[] moneyData = new int[3];
+                EmployeeWithWorkType.WorkTypeData newWorkTypeData =
+                        newEmployeeWithWorkType.new WorkTypeData(workType);
 
-                    int numDay = jData.getInt(Const.MONEY_SPENT_NUM_DAY);
-                    int sum_money = jData.getInt(Const.MONEY_SPENT_NUM);
-                    int approve = jData.getInt(Const.MONEY_SPENT_APPROVE);
+                newWorkTypeData.setSumWorkType(sumArrayWorkType);
 
-                    boolean flag = true;
-                    //iterate records
-                    for(int a = 0; a < moneyDataList.size(); ++a){
-                        int[] array = moneyDataList.get(a);
+                List<int[]> workDataList = new ArrayList<>();
 
-                        //if record already exist in the same day
-                        if(array[NUM_DAY] == numDay){
-                            array[SUM_MONEY] += sum_money;
-                            if(approve != 1 || array[APPROV] != 1) array[APPROV] = 0;
-                            flag = false;
-                        }
-                    }
+                //iterate by work data
+                JSONArray workArray = jWorkType.getJSONArray(WORK_DATA);
+                for(int k = 0; k < workArray.length(); ++k){
+                    JSONObject jData = workArray.getJSONObject(k);
+                    int[] workData = new int[4];
 
-                    //if record new
-                    if(flag) {
-                        moneyData[NUM_DAY] = numDay;
-                        moneyData[SUM_MONEY] = sum_money;
-                        moneyData[APPROV] = approve;
-                        moneyDataList.add(moneyData);
-                    }
+                    int numDay = jData.getInt(Const.WORK_TIME_NUM_DAY);
+                    int work_hours = jData.getInt(Const.WORK_TIME_WORK_TIME);
+                    int over_work_hours = jData.getInt(Const.WORK_TIME_OVER_TIME);
+
+                    workData[NUM_DAY] = numDay;
+                    workData[WORK_TIME] = work_hours;
+                    workData[OVER_WORK] = over_work_hours;
+                    workDataList.add(workData);
 
                 }
-                newMoneyTypeData.setData(moneyDataList);
+                newWorkTypeData.setData(workDataList);
 
-                newMoneyTypeList.add(newMoneyTypeData);
+                newWorkTypeList.add(newWorkTypeData);
             }
-            newEmployeeWithMoneyType.setMoneyTypeDataList(newMoneyTypeList);
+            newEmployeeWithWorkType.setWorkTypeDataList(newWorkTypeList);
 
-            sumMoneyAllSpent += newEmployeeWithMoneyType.getSumRecordEmployee();
-
-            this.employeeList.add(newEmployeeWithMoneyType);
+            this.employeeList.add(newEmployeeWithWorkType);
         }
 
     }
 
     //----------------------------------------------------------------------
     // GETTER
-    public Order getOrder() {
-        return order;
-    }
 
-    public List<EmployeeWithMoneyType> getEmployeeList() {
+    public List<EmployeeWithWorkType> getEmployeeList() {
         return employeeList;
     }
 
-    public int getSumMoneyForAllEmployee() {
-        return sumMoneyForAllEmployee;
-    }
-
-    public int getSumMoneyAllSpent(){
-        return sumMoneyAllSpent;
-    }
 
     //----------------------------------------------------------------------
     // SETTER
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
-    public void setEmployeeList(ArrayList<EmployeeWithMoneyType> employeeList) {
+    public void setEmployeeList(ArrayList<EmployeeWithWorkType> employeeList) {
         this.employeeList = employeeList;
     }
 
     //----------------------------------------------------------------------
     // new class for work type with employees
-    public class EmployeeWithMoneyType{
+    public class EmployeeWithWorkType{
         private Employee employee;
-        private List<MoneyTypeData> moneyTypeDataList;
-        private int sumOnEmployeeByOrder;
+        private List<WorkTypeData> workTypeDataList;
 
-        private List<int[]> sumMoneyOnDayList;
+        private List<int[]> sumWorkOnDayList;
 
-        private int sumRecordEmployee;
-        private boolean isSumApprove;
+        private int[] sumWorkEmployee;
 
 
         //----------------------------------------------------------------------
         // CONSTRUCTOR
-        public EmployeeWithMoneyType(Employee employee){
+        public EmployeeWithWorkType(Employee employee){
             this.employee = employee;
         }
 
@@ -170,23 +141,17 @@ public class MoneyList {
             return employee;
         }
 
-        public List<MoneyTypeData> getMoneyTypeDataList() {
-            return moneyTypeDataList;
+        public List<WorkTypeData> getWorkTypeDataList() {
+            return workTypeDataList;
         }
 
-        public List<int[]> getSumMoneyOnDayList() {
-            return sumMoneyOnDayList;
+        public List<int[]> getSumWorkOnDayList() {
+            return sumWorkOnDayList;
         }
 
-        public int getSumRecordEmployee() {
-            return sumRecordEmployee;
+        public int[] getSumWorkEmployee() {
+            return sumWorkEmployee;
         }
-
-        public int getSumOnEmployeeByOrder() {
-            return sumOnEmployeeByOrder;
-        }
-
-        public boolean getIsSumApprove() { return isSumApprove; }
 
         //----------------------------------------------------------------------
         // SETTER
@@ -194,101 +159,87 @@ public class MoneyList {
             this.employee = employee;
         }
 
-        public void setSumOnEmployeeByOrder(int sumEmployee){
-            this.sumOnEmployeeByOrder = sumEmployee;
-        }
-
-        public void setMoneyTypeDataList(List<MoneyTypeData> moneyTypeDataList) {
-            this.moneyTypeDataList = moneyTypeDataList;
-
-            List<int[]> sumList = new ArrayList<>();
-
-            sumRecordEmployee = 0;
-            isSumApprove = true;
-
-            // sum money over month
-            for(MoneyTypeData m: moneyTypeDataList){
-                sumRecordEmployee += m.getSumMoneyType();
-                if(isSumApprove && !m.isSumAppove()) isSumApprove = false;
-            }
+        public void setWorkTypeDataList(List<WorkTypeData> workTypeDataList) {
+            this.workTypeDataList = workTypeDataList;
 
 
-            // iterate through month to calculate sum money on day for employee
+            ArrayList<int[]> sumList = new ArrayList<>();
+
+            // iterate through month to calculate sum hours on day for work type
             for(int i = 1; i <= 31; i++){
-                int sumMoney = 0;
-                int approve = 1;
-                for(MoneyTypeData e: moneyTypeDataList){
-                    List<int[]> moneyData = e.getData();
-                    for(int[] d: moneyData){
-                        if(i == d[NUM_DAY]){
-                            sumMoney += d[SUM_MONEY];
-                            if(approve == 1 && d[APPROV] == 0) approve = 0;
+                int sumWork = 0;
+                int sumOverWork = 0;
+
+                for(WorkTypeData e: workTypeDataList){
+                    List<int[]> data = e.getData();
+                    for(int[] w: data){
+                        if(i == w[NUM_DAY]){
+                            sumWork += w[WORK_TIME];
+                            sumOverWork += w[OVER_WORK];
                             break;
                         }
                     }
                 }
 
-                if(sumMoney > 0){
-                    int[] sumMoneyOnDay = new int[3];
-                    sumMoneyOnDay[NUM_DAY] = i;
-                    sumMoneyOnDay[SUM_MONEY] = sumMoney;
-                    sumMoneyOnDay[APPROV] = approve;
-                    sumList.add(sumMoneyOnDay);
+                if(sumWork > 0 || sumOverWork > 0){
+                    int[] sumHoursOnDay = new int[3];
+                    sumHoursOnDay[NUM_DAY] = i;
+                    sumHoursOnDay[WORK_TIME] = sumWork;
+                    sumHoursOnDay[OVER_WORK] = sumOverWork;
+                    sumList.add(sumHoursOnDay);
                 }
 
             }
 
-            this.sumMoneyOnDayList = sumList;
+            this.sumWorkOnDayList = sumList;
 
+        }
+
+        public void setSumWorkEmployee(int[] sumWorkEmployee) {
+            this.sumWorkEmployee = sumWorkEmployee;
+        }
+
+        public void setSumWorkOnDayList(List<int[]> sumWorkOnDayList) {
+            this.sumWorkOnDayList = sumWorkOnDayList;
         }
 
         //----------------------------------------------------------------------
         // new class for money type with info
-        public class MoneyTypeData{
-            private WorkType moneyType;
+        public class WorkTypeData{
+            private WorkType workType;
             private List<int[]> data;
-            private int sumMoneyType;
-            private boolean isSumApprove;
+            private int[] sumWorkType;
 
             //----------------------------------------------------------------------
             // CONSTRUCTOR
-            public MoneyTypeData(WorkType moneyType){
-                this.moneyType = moneyType;
+            public WorkTypeData(WorkType moneyType){
+                this.workType = moneyType;
             }
 
             //----------------------------------------------------------------------
             // GETTER
-            public WorkType getMoneyType() {
-                return moneyType;
+            public WorkType getWorkType() {
+                return workType;
             }
 
             public List<int[]> getData() {
                 return data;
             }
 
-            public int getSumMoneyType() { return sumMoneyType; }
-
-            public boolean isSumAppove() { return isSumApprove; }
+            public int[] getSumWorkType() { return sumWorkType; }
 
             //----------------------------------------------------------------------
             // SETTER
             public void setMoneyType(WorkType moneyType) {
-                this.moneyType = moneyType;
+                this.workType = moneyType;
             }
 
+            public void setSumWorkType(int[] sumWorkType) {
+                this.sumWorkType = sumWorkType;
+            }
 
             public void setData(List<int[]> data) {
                 this.data = data;
-
-                // sum all money on type in month
-                sumMoneyType = 0;
-                isSumApprove = true;
-
-                for(int[] h_array: data){
-                    sumMoneyType += h_array[SUM_MONEY];
-                    if(isSumApprove && h_array[APPROV] == 0) isSumApprove = false;
-                }
-
             }
         }
 

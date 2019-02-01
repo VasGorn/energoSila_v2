@@ -529,6 +529,21 @@ public final class HttpHandler {
         return response;
     }
 
+    public static String getDataToFinalReportWork(String managerID, String numMonth){
+        String response = null;
+        String reqUrl = Const.URL_GET_DATA_TO_FINALL_REPORT_WORK;
+        try {
+            String param = "managerID=" + URLEncoder.encode(managerID,"UTF-8") +
+                    "&numMonth=" + URLEncoder.encode(numMonth,"UTF-8");
+
+            response = postRequest(reqUrl, param);
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
     public static String getDataToReportMoney(String orderID, String numMonth){
         String response = null;
         String reqUrl = Const.URL_GET_DATA_TO_REPORT_MONEY;
